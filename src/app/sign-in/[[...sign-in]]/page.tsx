@@ -8,6 +8,9 @@ export default function SignInPage() {
         <span className="auth-clinic-name">Northline Dental Clinic</span>
       </div>
       <SignIn
+        path="/sign-in"
+        routing="path"
+        signUpUrl="/sign-up"
         appearance={{
           elements: {
             rootBox: "clerk-root",
