@@ -1,0 +1,116 @@
+.tooth-section {
+    --enter: 0;
+    --move: 0;
+    --clean: 0;
+    --shine: 0;
+    --name: 0;
+    position: relative;
+    height: 160dvh;
+    overflow-x: clip;
+}
+
+.tooth-stage {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.tooth-wrap {
+    width: min(80vw, 400px);
+    will-change: transform;
+    /* from the right edge into the middle, then drifts down with scroll */
+    transform:
+        translateX(calc((1 - var(--enter)) * 60vw)) translateY(calc(var(--move) * 6vh));
+    opacity: calc(0.2 + var(--enter) * 0.8);
+}
+
+.tooth-title {
+    text-align: center;
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 470;
+    letter-spacing: -0.055em;
+    line-height: 1.05;
+    color: var(--clinic-ink);
+    text-wrap: balance;
+}
+
+.tooth-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+    filter:
+        brightness(calc(0.85 + var(--clean) * 0.25)) saturate(calc(1.2 - var(--clean) * 0.2)) drop-shadow(0 0 calc(var(--clean) * 18px) rgba(8, 127, 128, calc(var(--clean) * 0.22)));
+}
+
+.dirt {
+    opacity: calc(1 - var(--clean));
+}
+
+.gloss {
+    opacity: calc(var(--clean) * 0.55);
+}
+
+.sparkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: var(--shine);
+    scale: calc(0.2 + var(--shine) * 1.1);
+    rotate: calc(var(--shine) * -90deg);
+    filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px #80cfca);
+}
+
+.clinic-name {
+    position: absolute;
+    bottom: 6vh;
+    left: 0;
+    right: 0;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(3rem, 7vw, 4rem);
+    font-weight: 300;
+    color: var(--clinic-ink);
+    letter-spacing: calc(0.5em - var(--name) * 0.3em);
+    opacity: var(--name);
+    transform: translateY(calc((1 - var(--name)) * 24px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tooth-section {
+        height: auto;
+        padding-block: 4rem;
+    }
+
+    .tooth-wrap {
+        transform: none;
+        opacity: 1;
+    }
+
+    .tooth-stage {
+        position: relative;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+        padding-block: 1.5rem 4rem;
+    }
+
+    .dirt {
+        opacity: 0;
+    }
+
+    .gloss,
+    .sparkle {
+        opacity: 1;
+    }
+
+    .clinic-name {
+        position: static;
+        grid-row: 2;
+        letter-spacing: 0.2em;
+        opacity: 1;
+        transform: none;
+    }
+}
