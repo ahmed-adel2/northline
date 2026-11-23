@@ -11,7 +11,7 @@ type NavItem = {
   badge?: number;
 };
 
-const navSections: { label: string; items: NavItem[] }[] = [
+export const navSections: { label: string; items: NavItem[] }[] = [
   {
     label: "Front Desk",
     items: [
@@ -20,7 +20,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
         label: "Dashboard",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
           </svg>
         ),
       },
@@ -50,7 +50,6 @@ const navSections: { label: string; items: NavItem[] }[] = [
             <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
           </svg>
         ),
-        badge: 6,
       },
       {
         href: "/qr",
@@ -103,7 +102,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
         label: "Invoices",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" />
+            <rect x="2" y="4" width="20" height="16" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /><line x1="6" y1="15" x2="10" y2="15" />
           </svg>
         ),
       },
@@ -161,7 +160,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ taskDueCount }: { taskDueCount?: number } = {}) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -171,20 +170,30 @@ export function Sidebar() {
   return (
     <aside className={`sidebar${collapsed ? " collapsed" : ""}`} aria-label="Module navigation">
       <div className="sidebar-brand">
-        <Link href="/dashboard" className="brand-link">
-          <span className="brand-mark">DR</span>
-          {!collapsed && <span className="brand-name">Northline Dental</span>}
+        <Link href="/dashboard" className="brand-link" title="Northline Dental Clinic">
+          <div className="brand-mark-wrapper">
+            <svg className="brand-tooth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L9 21h6l1.5-6C18 13.5 19 11.5 19 9c0-4-3-7-7-7z" />
+            </svg>
+          </div>
+          {!collapsed && (
+            <div className="brand-title-wrap">
+              <span className="brand-name">Northline Dental</span>
+              <span className="brand-sub">Clinical Portal</span>
+            </div>
+          )}
         </Link>
         <button
           className="sidebar-toggle"
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {collapsed ? (
-              <><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></>
+              <polyline points="9 18 15 12 9 6" />
             ) : (
-              <path d="M19 12H5M12 19l-7-7 7-7" />
+              <polyline points="15 18 9 12 15 6" />
             )}
           </svg>
         </button>
@@ -199,6 +208,7 @@ export function Sidebar() {
             <ul className="module-list">
               {section.items.map((item) => {
                 const active = isActive(item.href);
+                const badge = item.href === "/tasks" && taskDueCount !== undefined ? taskDueCount : item.badge;
                 return (
                   <li key={item.label}>
                     <Link
@@ -209,8 +219,8 @@ export function Sidebar() {
                     >
                       <span className="module-icon">{item.icon}</span>
                       {!collapsed && <span className="module-label">{item.label}</span>}
-                      {!collapsed && item.badge ? (
-                        <span className="nav-badge">{item.badge}</span>
+                      {!collapsed && badge && badge > 0 ? (
+                        <span className="nav-badge">{badge}</span>
                       ) : null}
                       {active && <span className="module-indicator" aria-hidden="true" />}
                     </Link>
@@ -223,13 +233,22 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <Link href="/" className={`module-link${collapsed ? " module-link-icon-only" : ""}`} title={collapsed ? "Public site" : undefined}>
+        <div className="sidebar-status-card">
+          <span className="status-indicator-dot" aria-hidden="true" />
+          {!collapsed && (
+            <div className="sidebar-status-text">
+              <span className="status-name">Clinic System</span>
+              <span className="status-sub">Operational · v2.4</span>
+            </div>
+          )}
+        </div>
+        <Link href="/" className={`module-link${collapsed ? " module-link-icon-only" : ""}`} title={collapsed ? "Public site" : undefined} target="_blank" rel="noopener noreferrer">
           <span className="module-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
           </span>
-          {!collapsed && <span className="module-label">Public site</span>}
+          {!collapsed && <span className="module-label">Public website ↗</span>}
         </Link>
       </div>
     </aside>

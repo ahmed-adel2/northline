@@ -9,11 +9,10 @@ export function HomeHeroVideo() {
     const video = videoRef.current;
     if (!video) return;
 
-    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     let isVisible = false;
 
     const syncPlayback = () => {
-      if (!isVisible || document.hidden || motionPreference.matches) {
+      if (!isVisible || document.hidden) {
         video.pause();
         return;
       }
@@ -35,12 +34,16 @@ export function HomeHeroVideo() {
 
     observer.observe(video);
     document.addEventListener("visibilitychange", syncPlayback);
-    motionPreference.addEventListener("change", syncPlayback);
+    video.addEventListener("canplay", syncPlayback);
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    syncPlayback();
 
     return () => {
       observer.disconnect();
       document.removeEventListener("visibilitychange", syncPlayback);
-      motionPreference.removeEventListener("change", syncPlayback);
+      video.removeEventListener("canplay", syncPlayback);
       video.pause();
     };
   }, []);
@@ -50,9 +53,11 @@ export function HomeHeroVideo() {
       <video
         ref={videoRef}
         className="hero-illustration"
+        autoPlay
+        loop
         muted
         playsInline
-        preload="metadata"
+        preload="auto"
         poster="/images/clinic-intro-poster.jpg"
         aria-label="A cinematic introduction to the clinic"
       >
