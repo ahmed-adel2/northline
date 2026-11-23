@@ -80,6 +80,7 @@ export default function Home() {
         </div>
 
         <HomeHeroVideo />
+
       </section>
 
       <section className="visit-strip" aria-label="Appointment card example details">

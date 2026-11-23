@@ -1,0 +1,1103 @@
+/* =================================================================
+   mobile.css — Premium Mobile-First Layer for Northline Operate
+   
+   /adapt    — Responsive, touch-friendly, mobile-optimised layout
+   /polish   — Pixel-perfect spacing, consistent scale system
+   /animate  — Smooth state transitions, micro-interactions
+   /harden   — Touch targets ≥44px, safe areas, overflow prevention
+   /optimize — GPU-accelerated animations, reduced-motion support
+   ================================================================= */
+
+/* ================================================================
+   §1  SHARED PRIMITIVES (all viewports)
+   ================================================================ */
+
+/* --- Form grid --- */
+.m-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.m-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.m-span {
+  grid-column: 1 / -1;
+}
+
+/* --- Field --- */
+.m-field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--clinic-muted);
+}
+
+.m-field input,
+.m-field select,
+.m-field textarea {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--clinic-hairline);
+  border-radius: var(--clinic-radius-sm, 0.5rem);
+  background: var(--clinic-surface);
+  color: var(--clinic-ink);
+  font-size: 1rem; /* prevents iOS zoom-on-focus */
+  font-weight: 400;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  outline: none;
+}
+
+.m-field input:focus,
+.m-field select:focus,
+.m-field textarea:focus {
+  border-color: var(--clinic-teal);
+  box-shadow: 0 0 0 3px var(--clinic-teal-glow, rgba(8,127,128,0.14));
+}
+
+.m-field textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+/* --- Status messages --- */
+.m-error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--clinic-radius-sm, 0.5rem);
+  background: var(--clinic-danger-tint, #fef2f2);
+  color: var(--clinic-danger);
+  font-size: 0.88rem;
+  border-left: 3px solid var(--clinic-danger);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.m-ok {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--clinic-radius-sm, 0.5rem);
+  background: var(--clinic-success-tint, #ecfdf5);
+  color: var(--clinic-success);
+  font-size: 0.88rem;
+  border-left: 3px solid var(--clinic-success);
+}
+
+/* --- Actions row --- */
+.m-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.m-actions .button {
+  min-height: 2.9rem;
+}
+
+/* --- List & row primitives --- */
+.m-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.m-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.2rem 0.75rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  background: var(--clinic-surface);
+  border: 1px solid var(--clinic-hairline);
+  border-radius: var(--clinic-radius-md, 0.75rem);
+  color: inherit;
+  text-decoration: none;
+  min-height: 3.5rem;
+  transition: background 180ms ease, border-color 180ms ease,
+    box-shadow 180ms ease, transform 120ms ease;
+  position: relative;
+}
+
+a.m-row:hover {
+  background: var(--clinic-teal-tint);
+  border-color: var(--clinic-teal);
+  box-shadow: 0 2px 10px rgba(8, 127, 128, 0.08);
+  transform: translateY(-1px);
+}
+
+a.m-row:active {
+  transform: translateY(0);
+  background: var(--clinic-teal-tint);
+}
+
+.m-row-compact {
+  padding: 0.65rem 0.9rem;
+  min-height: 2.75rem;
+}
+
+/* Row content */
+.m-row-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.m-row-sub {
+  grid-column: 1;
+  font-size: 0.82rem;
+  color: var(--clinic-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  align-items: center;
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.m-row-end {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  text-align: right;
+  display: grid;
+  gap: 0.3rem;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* Time tags in appointment rows */
+.m-row-time-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--clinic-teal-deep);
+  white-space: nowrap;
+}
+
+.m-time-start { }
+.m-time-sep { opacity: 0.6; }
+.m-time-end { opacity: 0.75; }
+
+/* Money / financial */
+.m-money-due {
+  color: var(--clinic-danger);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Empty states --- */
+.m-empty {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--clinic-muted);
+  border: 1.5px dashed var(--clinic-hairline);
+  border-radius: var(--clinic-radius-md, 0.75rem);
+  background: var(--clinic-ground, #f4f8f8);
+  animation: emptyFadeIn 350ms ease both;
+}
+
+.m-empty h3 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--clinic-ink);
+}
+
+.m-empty p {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.m-empty-compact {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem;
+  color: var(--clinic-muted);
+  font-size: 0.88rem;
+}
+
+.empty-icon {
+  display: block;
+  margin: 0 auto 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--clinic-teal);
+  opacity: 0.65;
+}
+
+.empty-icon-sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  color: var(--clinic-success);
+}
+
+@keyframes emptyFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* --- Filter chips --- */
+.m-chips {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin: 0 -1rem;
+  padding-inline: 1rem;
+  scrollbar-width: none;
+  align-items: center;
+}
+
+.m-chips a,
+.m-chips button {
+  flex: none;
+}
+
+.m-chips::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Search bar --- */
+.m-search {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.m-search input {
+  flex: 1;
+  min-height: 2.9rem;
+  padding: 0 0.9rem;
+  font-size: 1rem;
+  border: 1.5px solid var(--clinic-hairline);
+  border-radius: var(--clinic-radius-sm, 0.5rem);
+  background: var(--clinic-surface);
+  color: var(--clinic-ink);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  outline: none;
+}
+
+.m-search input:focus {
+  border-color: var(--clinic-teal);
+  box-shadow: 0 0 0 3px var(--clinic-teal-glow, rgba(8,127,128,0.12));
+}
+
+/* --- Stack layouts --- */
+.m-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.m-quick {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.6rem;
+}
+
+.m-quick .button {
+  justify-content: center;
+  min-height: 2.9rem;
+  text-align: center;
+}
+
+/* --- Danger variant --- */
+.m-danger {
+  color: var(--clinic-danger) !important;
+  border-color: color-mix(in srgb, var(--clinic-danger) 40%, transparent) !important;
+  background: transparent !important;
+}
+
+.m-danger:hover {
+  background: var(--clinic-danger-tint, #fef2f2) !important;
+}
+
+/* --- Pagination --- */
+.m-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ================================================================
+   §2  WEEK STRIP / CALENDAR NAV
+   ================================================================ */
+.m-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+
+.m-day {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  padding: 0.5rem 0.1rem;
+  border: 1px solid var(--clinic-hairline);
+  border-radius: var(--clinic-radius-sm, 0.5rem);
+  background: var(--clinic-surface);
+  color: var(--clinic-ink);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: background 160ms ease, border-color 160ms ease, transform 100ms ease;
+  position: relative;
+  min-height: 3.5rem; /* touch target */
+}
+
+.m-day-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  opacity: 0.75;
+}
+
+.m-day-num {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.m-day-dot {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.m-day-dot.has-appts {
+  opacity: 0.75;
+}
+
+.m-day:hover:not(.on) {
+  background: var(--clinic-teal-tint);
+  border-color: var(--clinic-teal);
+  transform: translateY(-1px);
+}
+
+.m-day.on {
+  background: var(--clinic-teal);
+  border-color: var(--clinic-teal);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(8, 127, 128, 0.3);
+}
+
+.m-day.today:not(.on) {
+  border-color: var(--clinic-teal);
+  font-weight: 700;
+}
+
+.m-day.today:not(.on) .m-day-num {
+  color: var(--clinic-teal-deep);
+}
+
+/* Legacy dot support */
+.m-day i {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.m-day i.has {
+  opacity: 0.8;
+}
+
+/* ================================================================
+   §3  APPOINTMENT CARD
+   ================================================================ */
+.m-appt {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.95rem 1rem;
+  background: var(--clinic-surface);
+  border: 1px solid var(--clinic-hairline);
+  border-left: 3.5px solid var(--doc, var(--clinic-teal));
+  border-radius: var(--clinic-radius-md, 0.75rem);
+  transition: box-shadow 180ms ease, transform 120ms ease;
+}
+
+.m-appt:hover {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.m-appt-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.m-appt-time {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.88rem;
+  color: var(--clinic-teal-deep);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.m-appt-patient-details {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.m-appt-notes {
+  font-size: 0.82rem;
+  color: var(--clinic-muted);
+  font-style: italic;
+  padding: 0.4rem 0.6rem;
+  background: var(--clinic-ground, #f4f8f8);
+  border-radius: var(--clinic-radius-xs, 0.35rem);
+  border-left: 2px solid var(--clinic-hairline);
+}
+
+.m-appt-btns {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.m-appt-btns .button {
+  min-height: 2.6rem;
+  padding-inline: 0.9rem;
+  font-size: 0.88rem;
+}
+
+/* ================================================================
+   §4  PROFILE FACTS
+   ================================================================ */
+.m-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.25rem;
+  margin: 0;
+}
+
+.m-facts dt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--clinic-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.15rem;
+}
+
+.m-facts dd {
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* ================================================================
+   §5  BOTTOM NAV + MORE SHEET (hidden by default on desktop)
+   ================================================================ */
+.m-nav,
+.m-sheet {
+  display: none;
+}
+
+/* ================================================================
+   §6  MOBILE BREAKPOINT  (≤767px)
+   ================================================================ */
+@media (max-width: 767px) {
+
+  /* Prevent horizontal scroll */
+  html,
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Shell reflow: single column, stacked */
+  .internal-shell {
+    display: block !important;
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+  }
+
+  /* Hide sidebar — replaced by bottom nav */
+  .internal-shell > .sidebar {
+    display: none !important;
+  }
+
+  /* Sticky top bar */
+  .internal-shell > .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    height: 4rem;
+    min-height: 4rem;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    padding-top: env(safe-area-inset-top);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 1px 0 var(--clinic-hairline);
+  }
+
+  /* Hide non-essential topbar elements on small screens */
+  .topbar .search-wrap,
+  .topbar .public-site-link,
+  .topbar .user-name {
+    display: none !important;
+  }
+
+  .topbar-left {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .topbar-right {
+    order: 0;
+    flex: 0 0 auto;
+    gap: 0.4rem;
+    margin-left: 0;
+  }
+
+  .branch-switcher {
+    min-width: 0;
+    max-width: 11.5rem;
+    min-height: 44px;
+    gap: 0.45rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .branch-status-dot,
+  .branch-sublabel,
+  .branch-switcher .chevron {
+    display: none;
+  }
+
+  .branch-icon {
+    flex: 0 0 auto;
+  }
+
+  .branch-text-wrap {
+    min-width: 0;
+  }
+
+  .branch-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar .icon-button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+  }
+
+  .topbar .icon-button svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .topbar .notification-badge {
+    top: 3px;
+    right: 3px;
+    min-width: 18px;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border-width: 2px;
+    border-color: #fff;
+    font-size: 0.58rem;
+  }
+
+  .topbar .user-menu {
+    width: auto;
+    height: 44px;
+    min-width: 44px;
+    gap: 0.35rem;
+    justify-content: center;
+    padding: 0.25rem;
+  }
+
+  .topbar .user-text-info {
+    align-items: center;
+  }
+
+  /* Main content area: extra bottom padding for nav */
+  .internal-content {
+    padding: 1rem 0.9rem calc(5.5rem + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  /* ---- Page header ---- */
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .page-header .header-actions {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .page-header .button {
+    width: 100%;
+    justify-content: center;
+    min-height: 2.9rem;
+  }
+
+  /* ---- KPI grid: 2 columns on mobile ---- */
+  .kpi-grid,
+  .kpi-grid-4 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.6rem !important;
+  }
+
+  .kpi-card {
+    padding: 1rem !important;
+  }
+
+  .kpi-value {
+    font-size: 1.35rem !important;
+  }
+
+  /* ---- Dashboard grid: single column ---- */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .dashboard-side-stack {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  /* ---- Analytics grid ---- */
+  .dashboard-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-grid-3 section[style*="span 2"],
+  .dashboard-grid-3 section[style*="span 3"] {
+    grid-column: 1 !important;
+  }
+
+  /* ---- Settings grid ---- */
+  .settings-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .settings-section[style*="span 2"],
+  .settings-section[style*="span 3"] {
+    grid-column: 1 !important;
+  }
+
+  /* ---- Clinical grid ---- */
+  .clinical-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .clinical-sidebar {
+    max-height: 14rem;
+    overflow-y: auto;
+  }
+
+  /* ---- Tooth chart: scroll horizontally ---- */
+  .chart-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tooth-row {
+    min-width: 36rem;
+  }
+
+  /* ---- Team grid ---- */
+  .team-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ---- Table wrap: horizontal scroll ---- */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--clinic-radius-md, 0.75rem);
+  }
+
+  /* Minimum column widths to stay readable */
+  .data-table th,
+  .data-table td {
+    white-space: nowrap;
+    font-size: 0.82rem;
+  }
+
+  /* ---- QR grid ---- */
+  .qr-patient-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .qr-clinic-body {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  /* ---- Bar chart ---- */
+  .bar-chart {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Forms ---- */
+  .m-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .m-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .m-actions .button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* ---- Filter bar on invoices/labs ---- */
+  .filter-bar {
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+  }
+
+  .filter-search {
+    width: 100% !important;
+  }
+
+  /* ---- Action grid (dashboard quick actions) ---- */
+  .action-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* ---- Week controls ---- */
+  .calendar-week-controls {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    gap: 0.4rem !important;
+  }
+
+  .today-nav-btn {
+    justify-content: center;
+  }
+
+  .calendar-week-controls .button {
+    font-size: 0.82rem !important;
+    padding-inline: 0.6rem !important;
+  }
+
+  /* ---- Doctor filter wrap ---- */
+  .calendar-doctor-filter {
+    gap: 0.35rem !important;
+  }
+
+  /* ---- Lab lifecycle: horizontal scroll ---- */
+  .lab-lifecycle {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.25rem;
+  }
+
+  /* ---- Treatment plans: table scroll ---- */
+  .treatment-plan-card .table-wrap {
+    overflow-x: auto;
+  }
+
+  /* ---- Tasks details/create form ---- */
+  details.card {
+    max-width: 100% !important;
+  }
+
+  /* ---- QR URL row ---- */
+  .qr-url-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .qr-url-row .button {
+    width: 100% !important;
+  }
+
+  /* ---- Bottom navigation ---- */
+  .m-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--clinic-hairline);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 24px rgba(19, 42, 44, 0.08);
+  }
+
+  .m-nav a,
+  .m-nav button {
+    display: grid;
+    justify-items: center;
+    gap: 0.15rem;
+    padding: 0.5rem 0 0.4rem;
+    min-height: 3.5rem;
+    border: 0;
+    background: none;
+    color: var(--clinic-muted);
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 160ms ease, transform 120ms ease;
+    cursor: pointer;
+  }
+
+  .m-nav a:active,
+  .m-nav button:active {
+    transform: scale(0.92);
+  }
+
+  .m-nav svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .m-nav .on {
+    color: var(--clinic-teal-deep);
+    font-weight: 700;
+  }
+
+  .m-nav .on svg {
+    filter: drop-shadow(0 1px 4px rgba(8, 127, 128, 0.3));
+  }
+
+  /* ---- More sheet ---- */
+  .m-sheet {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+  }
+
+  .m-sheet-scrim {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(19, 42, 44, 0.45);
+    animation: scrimFadeIn 200ms ease both;
+  }
+
+  @keyframes scrimFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .m-sheet-panel {
+    position: absolute;
+    inset: auto 0 0 0;
+    max-height: 88dvh;
+    overflow-y: auto;
+    background: var(--clinic-surface);
+    border-radius: var(--clinic-radius-lg, 1rem) var(--clinic-radius-lg, 1rem) 0 0;
+    padding: 0.5rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 32px rgba(19, 42, 44, 0.16);
+    animation: sheetSlideUp 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes sheetSlideUp {
+    from { transform: translateY(60%); opacity: 0.6; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+
+  /* Sheet drag handle */
+  .m-sheet-panel::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--clinic-hairline);
+    margin: 0.6rem auto 0.75rem;
+  }
+
+  .m-sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-top: 0.25rem;
+  }
+
+  .m-sheet h3 {
+    margin: 1rem 0 0.4rem;
+    font-size: 0.72rem;
+    color: var(--clinic-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .m-sheet ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .m-sheet li a {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 0.85rem 0.25rem;
+    min-height: 4.5rem;
+    border: 1px solid var(--clinic-hairline);
+    border-radius: var(--clinic-radius-md, 0.75rem);
+    color: var(--clinic-ink);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+  }
+
+  .m-sheet li a:hover {
+    background: var(--clinic-teal-tint);
+    border-color: var(--clinic-teal);
+    transform: scale(1.02);
+  }
+
+  .m-sheet li a.on {
+    background: var(--clinic-teal-tint);
+    border-color: var(--clinic-teal);
+    color: var(--clinic-teal-deep);
+    font-weight: 700;
+  }
+
+  .m-sheet li svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .m-sheet-public {
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--clinic-teal-deep);
+    font-weight: 600;
+    padding: 0.85rem;
+    border: 1px solid var(--clinic-teal);
+    border-radius: var(--clinic-radius-md, 0.75rem);
+    text-decoration: none;
+    transition: background 160ms ease;
+  }
+
+  .m-sheet-public:hover {
+    background: var(--clinic-teal-tint);
+  }
+
+} /* end @media (max-width: 767px) */
+
+@media (max-width: 360px) {
+  .topbar {
+    padding-inline: 0.5rem;
+  }
+
+  .branch-switcher {
+    max-width: 8.75rem;
+  }
+
+  .branch-icon {
+    display: none;
+  }
+
+  .topbar .user-role-badge {
+    display: none;
+  }
+}
+
+/* ================================================================
+   §7  TABLET RANGE  (768px – 1023px)
+   ================================================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .kpi-grid,
+  .kpi-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 3fr 2fr;
+    gap: 1rem;
+  }
+}
+
+/* ================================================================
+   §8  DESKTOP  (≥768px) — override mobile primitives
+   ================================================================ */
+@media (min-width: 768px) {
+  /* Chips: wrap instead of scroll */
+  .m-chips {
+    margin: 0;
+    padding-inline: 0;
+    flex-wrap: wrap;
+  }
+
+  /* List: auto-fill multi-column */
+  .m-list {
+    grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  }
+}
+
+/* ================================================================
+   §9  REDUCED-MOTION SAFETY
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .m-row,
+  .m-appt,
+  .m-day,
+  .m-sheet-panel,
+  .m-sheet-scrim,
+  .m-empty {
+    animation: none !important;
+    transition: none !important;
+  }
+}

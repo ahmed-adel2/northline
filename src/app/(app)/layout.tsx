@@ -1,51 +1,50 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import "@/app/(app)/internal.css";
+import "@/app/(app)/polish.css";
+import "@/app/(app)/mobile.css";
+import type { ReactNode } from "react";
 import { Sidebar } from "@/components/internal/sidebar";
 import { TopBar } from "@/components/internal/topbar";
+import { MobileNav } from "@/components/internal/mobile-nav";
+import { getSession } from "@/lib/auth";
+import { and, count, lte, ne } from "drizzle-orm";
+import { getDb, tasks } from "@/db";
+import { todayISO } from "@/lib/format";
 
-export default async function InternalLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { userId, orgRole } = await auth();
+export const dynamic = "force-dynamic";
 
-  // 1. Not signed in → redirect to sign-in
-  if (!userId) {
-    redirect("/sign-in");
+async function getDueTaskCount() {
+  try {
+    const [r] = await getDb().select({ n: count() }).from(tasks)
+      .where(and(ne(tasks.status, "done"), lte(tasks.dueDate, todayISO())));
+    return r?.n ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+export default async function StaffLayout({ children }: Readonly<{ children: ReactNode }>) {
+  let role: string | undefined;
+  try {
+    const s = await getSession();
+    role = s.role;
+  } catch {
+    // If auth redirects or fails in unauthenticated/static context
   }
 
-  // 2. Read live organization role directly from Clerk
-  let isAdmin = orgRole === "org:admin" || orgRole === "admin";
-
-  if (!isAdmin) {
-    try {
-      const client = await clerkClient();
-      const memberships = await client.users.getOrganizationMembershipList({
-        userId,
-      });
-
-      // User must be an Admin in at least one organization in your Clerk instance
-      isAdmin = memberships.data.some(
-        (m) => m.role === "org:admin" || m.role === "admin"
-      );
-    } catch {
-      isAdmin = false;
-    }
-  }
-
-  // If user is just a Member or has no admin organization role → 403 (auto signs out)
-  if (!isAdmin) {
-    redirect("/403");
-  }
+  const dueTasks = await getDueTaskCount();
 
   return (
     <div className="internal-shell">
-      <Sidebar />
-      <TopBar />
-      <main className="internal-content" id="main-content">
-        {children}
-      </main>
+      <Sidebar taskDueCount={dueTasks} />
+      <TopBar role={role} dueCount={dueTasks} />
+      <div className="internal-body">
+        <main className="internal-content">
+          <div className="internal-container">
+            {children}
+          </div>
+        </main>
+      </div>
+      <MobileNav />
     </div>
   );
 }

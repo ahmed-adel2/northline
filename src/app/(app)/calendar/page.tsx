@@ -1,153 +1,311 @@
-"use client";
+import Link from "next/link";
+import { and, asc, between, eq, sql } from "drizzle-orm";
+import { getSession } from "@/lib/auth";
+import { appointments, getDb, patients, staffMembers } from "@/db";
+import { setAppointmentStatus } from "./actions";
+import { addDays, fmtDate, fmtMoney, fmtTime, patientCode, todayISO } from "@/lib/format";
 
-import { useState } from "react";
-import "@/app/(app)/internal.css";
-import { demoAppointments, demoPatients, demoDoctors, TODAY } from "@/lib/demo-data";
+export const metadata = { title: "Schedule & Calendar — Northline Dental Clinic" };
 
-const HOURS = Array.from({ length: 11 }, (_, i) => `${String(i + 8).padStart(2, "0")}:00`);
+const NEXT: Record<string, { to: string; label: string }[]> = {
+  scheduled: [
+    { to: "confirmed", label: "Confirm" },
+    { to: "checked-in", label: "Check in" },
+  ],
+  confirmed: [{ to: "checked-in", label: "Check in" }],
+  "checked-in": [{ to: "in-progress", label: "Start treatment" }],
+  "in-progress": [{ to: "completed", label: "Complete visit" }],
+};
 
-function getWeekDates(anchor: string) {
-  const d = new Date(`${anchor}T00:00:00Z`);
-  const day = d.getUTCDay(); // 0=Sun
-  const offset = day === 0 ? 0 : -day;
-  return Array.from({ length: 7 }, (_, i) => {
-    const nd = new Date(d);
-    nd.setUTCDate(d.getUTCDate() + offset + i);
-    return nd.toISOString().slice(0, 10);
+export default async function Calendar({
+  searchParams,
+}: {
+  searchParams: Promise<{ d?: string; doc?: string }>;
+}) {
+  await getSession();
+  const sp = await searchParams;
+  const today = todayISO();
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(sp.d ?? "") ? sp.d! : today;
+  const dow = new Date(`${d}T00:00:00Z`).getUTCDay();
+  const week = Array.from({ length: 7 }, (_, i) => addDays(d, i - dow));
+
+  const db = getDb();
+  const [doctors, rows, weekCounts] = await Promise.all([
+    db
+      .select()
+      .from(staffMembers)
+      .where(and(eq(staffMembers.role, "dentist"), eq(staffMembers.active, true)))
+      .orderBy(asc(staffMembers.fullName)),
+    db
+      .select({
+        a: appointments,
+        patient: patients.fullName,
+        no: patients.patientNo,
+        doctor: staffMembers.fullName,
+        color: staffMembers.color,
+      })
+      .from(appointments)
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .leftJoin(staffMembers, eq(appointments.doctorId, staffMembers.id))
+      .where(
+        and(
+          eq(appointments.apptDate, d),
+          sp.doc ? eq(appointments.doctorId, sp.doc) : undefined
+        )
+      )
+      .orderBy(asc(appointments.startTime)),
+    db
+      .select({ day: appointments.apptDate, n: sql<number>`count(*)::int` })
+      .from(appointments)
+      .where(between(appointments.apptDate, week[0], week[6]))
+      .groupBy(appointments.apptDate),
+  ]);
+
+  const has = new Set(weekCounts.map((w) => w.day));
+  const q = (date: string, doc = sp.doc) =>
+    `/calendar?d=${date}${doc ? `&doc=${doc}` : ""}`;
+  const label = new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
   });
-}
 
-function formatWeekDay(iso: string) {
-  const d = new Date(`${iso}T00:00:00Z`);
-  return {
-    day: d.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" }),
-    date: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }),
-  };
-}
-
-function slotTop(time: string) {
-  const [h, m] = time.split(":").map(Number);
-  return ((h - 8) * 60 + m) * (4.5 / 60); // 4.5rem per hour
-}
-
-function slotHeight(start: string, end: string) {
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  const mins = (eh - sh) * 60 + (em - sm);
-  return mins * (4.5 / 60);
-}
-
-export default function Calendar() {
-  const [anchor, setAnchor] = useState(TODAY);
-  const weekDates = getWeekDates(anchor);
-
-  const prev = () => {
-    const d = new Date(`${anchor}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() - 7);
-    setAnchor(d.toISOString().slice(0, 10));
-  };
-  const next = () => {
-    const d = new Date(`${anchor}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + 7);
-    setAnchor(d.toISOString().slice(0, 10));
-  };
+  const isToday = d === today;
 
   return (
-    <div className="calendar-wrap">
+    <div className="calendar-page-wrap">
+      {/* ── Page Header ───────────────────────────────────── */}
       <div className="page-header">
         <div>
-          <h1>Calendar</h1>
-          <p className="calendar-demo-note">Week of {weekDates[0]} – {weekDates[6]} · synthetic demo data</p>
-        </div>
-        <div style={{ display: "flex", gap: "0.75rem" }}>
-          <div className="calendar-controls" style={{ marginTop: 0 }}>
-            <button className="button button-secondary" onClick={prev} type="button" aria-label="Previous week">
-              ←
-            </button>
-            <button className="button button-secondary" onClick={() => setAnchor(TODAY)} type="button">
-              Today
-            </button>
-            <button className="button button-secondary" onClick={next} type="button" aria-label="Next week">
-              →
-            </button>
+          <div className="page-header-tag">
+            <span>Clinic Operatory Schedule</span>
           </div>
-          <button className="button button-primary" type="button">+ Book appointment</button>
+          <h1>{label}</h1>
+          <p className="page-header-sub">
+            {rows.length} {rows.length === 1 ? "appointment" : "appointments"} scheduled
+            {isToday && (
+              <> · <span className="live-pulse-dot" aria-hidden="true" />{" "}<strong>Today</strong></>
+            )}
+          </p>
+        </div>
+        <div className="header-actions">
+          <Link href={`/calendar/new?d=${d}`} className="button button-primary">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-icon"
+              aria-hidden="true"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <line x1="12" y1="14" x2="12" y2="18" />
+              <line x1="10" y1="16" x2="14" y2="16" />
+            </svg>
+            <span>+ Book appointment</span>
+          </Link>
         </div>
       </div>
 
-      {/* Doctor filter */}
-      <div className="filter-chips" style={{ marginBottom: "1rem" }}>
-        <button className="filter-chip filter-chip-active">All doctors</button>
-        {demoDoctors.map((d) => (
-          <button key={d.id} className="filter-chip" style={{ "--doctor-color": d.color } as React.CSSProperties}>
-            {d.name.replace("Dr. ", "")}
-          </button>
-        ))}
-      </div>
+      {/* ── Week Navigator ────────────────────────────────── */}
+      <div className="card calendar-nav-card">
+        <div className="calendar-week-controls">
+          <Link
+            className="button button-secondary"
+            href={q(addDays(d, -7))}
+            aria-label="Previous week"
+          >
+            ← Prev week
+          </Link>
+          <Link
+            className="button button-secondary today-nav-btn"
+            href={q(today)}
+            aria-current={isToday ? "true" : undefined}
+          >
+            Today
+          </Link>
+          <Link
+            className="button button-secondary"
+            href={q(addDays(d, 7))}
+            aria-label="Next week"
+          >
+            Next week →
+          </Link>
+        </div>
 
-      <div className="calendar-grid" aria-label="Weekly appointment calendar">
-        {/* Time axis */}
-        <div className="time-axis">
-          <div className="time-label time-label-header" />
-          {HOURS.map((h) => (
-            <div key={h} className="time-label">{h}</div>
+        <nav className="m-week" aria-label="Week dates">
+          {week.map((w) => (
+            <Link
+              key={w}
+              href={q(w)}
+              className={`m-day${w === d ? " on" : ""}${w === today ? " today" : ""}`}
+              aria-current={w === d ? "date" : undefined}
+            >
+              <span className="m-day-name">
+                {new Date(`${w}T00:00:00Z`).toLocaleDateString("en-GB", {
+                  weekday: "short",
+                  timeZone: "UTC",
+                })}
+              </span>
+              <b className="m-day-num">{Number(w.slice(8))}</b>
+              <span className={`m-day-dot ${has.has(w) ? "has-appts" : ""}`} aria-hidden="true" />
+            </Link>
           ))}
+        </nav>
+
+        {doctors.length > 0 && (
+          <div className="calendar-doctor-filter" role="group" aria-label="Filter by doctor">
+            <span className="filter-title">Doctor:</span>
+            <Link
+              href={q(d, "")}
+              className={`filter-chip${!sp.doc ? " filter-chip-active" : ""}`}
+            >
+              All Doctors ({rows.length})
+            </Link>
+            {doctors.map((doc) => (
+              <Link
+                key={doc.id}
+                href={q(d, doc.id)}
+                className={`filter-chip${sp.doc === doc.id ? " filter-chip-active" : ""}`}
+              >
+                <span
+                  className="doctor-filter-dot"
+                  style={{ backgroundColor: doc.color ?? "#087f80" }}
+                  aria-hidden="true"
+                />
+                {doc.fullName}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Appointment List / Timeline ───────────────────── */}
+      {rows.length === 0 ? (
+        <div className="card">
+          <div className="m-empty" style={{ padding: "3.5rem 1.5rem" }}>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="empty-icon"
+              aria-hidden="true"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <h3>No appointments for {fmtDate(d)}</h3>
+            <p>Treatment rooms are open and available for bookings.</p>
+            <Link className="button button-primary" href={`/calendar/new?d=${d}`}>
+              + Book an appointment
+            </Link>
+          </div>
         </div>
-
-        {/* Day columns */}
-        {weekDates.map((date) => {
-          const { day, date: dateLabel } = formatWeekDay(date);
-          const isToday = date === TODAY;
-          const dayAppts = demoAppointments.filter((a) => a.date === date);
-          return (
-            <div key={date} className={`day-column${isToday ? " day-today" : ""}`}>
-              <div className="day-header">
-                <span className="day-name">{day}</span>
-                <span className={`day-date${isToday ? " day-date-today" : ""}`}>{dateLabel}</span>
-              </div>
-              <div className="day-slots">
-                {HOURS.map((h) => (
-                  <div key={h} className="time-slot" />
-                ))}
-                {dayAppts.map((appt) => (
-                  <div
-                    key={appt.id}
-                    className={`appointment-block appt-block-${appt.status.replace(/-/g, "")}`}
-                    style={{
-                      top: `${3 + slotTop(appt.startTime)}rem`,
-                      height: `${slotHeight(appt.startTime, appt.endTime)}rem`,
-                    }}
-                    title={`${appt.patientName} — ${appt.procedure} (${appt.startTime}–${appt.endTime})`}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <span className="appt-patient">{appt.patientName.split(" ")[0]}</span>
-                    <span className="appt-procedure">{appt.procedure}</span>
-                    <span className="appt-block-time">{appt.startTime}</span>
+      ) : (
+        <div className="card">
+          <div className="card-header">
+            <h2>Appointments Timeline ({rows.length})</h2>
+            <span className="card-subtitle">{fmtDate(d)}</span>
+          </div>
+          <div className="card-body">
+            <ul className="m-list" style={{ gridTemplateColumns: "1fr" }}>
+              {rows.map(({ a, patient, no, doctor, color }) => (
+                <li
+                  key={a.id}
+                  className="m-appt"
+                  style={{ ["--doc" as string]: color ?? undefined }}
+                >
+                  <div className="m-appt-top">
+                    <span className="m-appt-time">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ width: "0.85rem", height: "0.85rem" }}
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      {fmtTime(a.startTime)} – {fmtTime(a.endTime)}
+                    </span>
+                    <span className={`badge badge-${a.status}`}>{a.status}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
-      {/* Legend */}
-      <div className="calendar-legend">
-        {[
-          { status: "scheduled", label: "Scheduled" },
-          { status: "confirmed", label: "Confirmed" },
-          { status: "checkedin", label: "Checked in" },
-          { status: "inprogress", label: "In progress" },
-          { status: "completed", label: "Completed" },
-          { status: "noshow", label: "No-show" },
-        ].map(({ status, label }) => (
-          <span key={status} className="legend-item">
-            <span className={`legend-dot appt-block-${status}`} />
-            {label}
-          </span>
-        ))}
-      </div>
+                  <div className="m-appt-patient-details">
+                    <Link
+                      href={`/patients/${patientCode(no)}`}
+                      className="m-row-title"
+                    >
+                      {patient}{" "}
+                      <span className="patient-code-tag">({patientCode(no)})</span>
+                    </Link>
+                    <div className="m-row-sub">
+                      <span className="procedure-tag">{a.procedure}</span>
+                      <span className="meta-sep">·</span>
+                      <span className="doctor-tag">Dr. {doctor ?? "Unassigned"}</span>
+                      {a.room && (
+                        <>
+                          <span className="meta-sep">·</span>
+                          <span className="room-tag">Room {a.room}</span>
+                        </>
+                      )}
+                      {Number(a.amount) > 0 && (
+                        <>
+                          <span className="meta-sep">·</span>
+                          <span className="amount-tag">{fmtMoney(a.amount)}</span>
+                        </>
+                      )}
+                    </div>
+                    {a.notes && (
+                      <div className="m-appt-notes">{a.notes}</div>
+                    )}
+                  </div>
+
+                  <div className="m-appt-btns">
+                    {(NEXT[a.status] ?? []).map((n) => (
+                      <form key={n.to} action={setAppointmentStatus.bind(null, a.id, n.to)}>
+                        <button
+                          className={`button ${
+                            n.to === NEXT[a.status][0].to
+                              ? "button-primary"
+                              : "button-secondary"
+                          }`}
+                        >
+                          {n.label}
+                        </button>
+                      </form>
+                    ))}
+                    {["scheduled", "confirmed", "checked-in"].includes(a.status) && (
+                      <form action={setAppointmentStatus.bind(null, a.id, "no-show")}>
+                        <button className="button button-secondary">No-show</button>
+                      </form>
+                    )}
+                    <Link
+                      href={`/calendar/${a.id}`}
+                      className="button button-secondary"
+                    >
+                      Edit / Move
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
