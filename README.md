@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Database migrations
+
+Database migrations use Drizzle ORM with PostgreSQL. Add your PostgreSQL connection string as `DATABASE_URL` in `.env.local` before running these commands:
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+`db:generate` creates migration files in `drizzle/` from tables defined in `src/db/schema.ts`. `db:migrate` applies pending migrations to the database. The schema currently has no tables, so define tables there before generating the initial migration.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
