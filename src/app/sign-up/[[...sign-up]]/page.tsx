@@ -9,7 +9,7 @@ export default function Page() {
                     <span className="auth-clinic-name">Northline Dental Clinic</span>
                 </div>
                 <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" />;
-                
+
                 <style>{`
         .auth-page {
           min-height: 100vh;
