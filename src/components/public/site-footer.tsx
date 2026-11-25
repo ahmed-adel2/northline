@@ -79,15 +79,38 @@ const footerLinks = [
   { href: "/testimonials", label: "Patient Reviews" },
 ];
 
-const socialLinks = [
+const baseSocialLinks = [
   { href: "https://facebook.com", label: "Facebook", ariaLabel: "Visit Northline on Facebook", icon: FacebookIcon },
   { href: "https://instagram.com", label: "Instagram", ariaLabel: "Visit Northline on Instagram", icon: InstagramIcon },
   { href: "https://linkedin.com", label: "LinkedIn", ariaLabel: "Visit Northline on LinkedIn", icon: LinkedInIcon },
-  { href: "mailto:hello@demo.dentorash.app", label: "Email Us", ariaLabel: "Email our care team", icon: MailIcon },
-  { href: "https://wa.me/+201011604114", label: "WhatsApp", ariaLabel: "Chat with Northline on WhatsApp", icon: WhatsAppIcon },
 ];
 
-export function SiteFooter() {
+export function SiteFooter({
+  showPricelist,
+  openingHours,
+  clinicName = "Northline Dental Clinic",
+  address = "1 Tahrir Square, Downtown, Cairo, Egypt",
+  phone = "+201011604114",
+  email = "hello@northline.clinic",
+}: {
+  showPricelist: boolean;
+  openingHours: { day: string; from: string; to: string; open: boolean }[];
+  clinicName?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+}) {
+  const waNumber = phone.replace(/[^0-9]/g, "");
+  const socialLinks = [
+    ...baseSocialLinks,
+    { href: `mailto:${email}`, label: "Email Us", ariaLabel: "Email our care team", icon: MailIcon },
+    { href: `https://wa.me/${waNumber}`, label: "WhatsApp", ariaLabel: `Chat with ${clinicName} on WhatsApp`, icon: WhatsAppIcon },
+  ];
+  const visibleFooterLinks = footerLinks.filter((link) => showPricelist || link.href !== "/pricelist");
+  const hoursSummary = openingHours
+    .filter((hour) => hour.open)
+    .map((hour) => hour.day.slice(0, 3))
+    .join(" · ");
   return (
     <footer className="site-footer" role="contentinfo">
       {/* Bold Hero Action Bar / Quick Booking Banner */}
@@ -104,8 +127,8 @@ export function SiteFooter() {
           <Link href="/contact" className="button button-primary footer-cta-btn">
             Request consultation <ArrowUpRight />
           </Link>
-          <a href="tel:+201011604114" className="button footer-phone-btn">
-            +20 10 11 60 4114
+          <a href={`tel:${phone}`} className="button footer-phone-btn">
+            {phone}
           </a>
         </div>
       </div>
@@ -126,7 +149,7 @@ export function SiteFooter() {
 
           <div className="footer-clinic-highlight">
             <span className="highlight-label">Hours of Operation</span>
-            <p className="highlight-value">Sat – Thu: 9:00 AM – 9:00 PM</p>
+            <p className="highlight-value hours-summary">{hoursSummary}</p>
             <span className="highlight-sub">Emergency support available on call 24/7</span>
           </div>
         </div>
@@ -136,7 +159,7 @@ export function SiteFooter() {
           <h3 className="footer-col-title">Navigation</h3>
           <nav className="footer-nav" aria-label="Footer navigation">
             <ul className="footer-link-list">
-              {footerLinks.map((link) => (
+              {visibleFooterLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="footer-link-item">
                     <span>{link.label}</span>
@@ -156,22 +179,22 @@ export function SiteFooter() {
               <span className="address-label">Location</span>
               <p>
                 <a
-                  href={googleMapsSearchUrl("123 Clinic Street, Medical District, Riyadh, Saudi Arabia")}
+                  href={googleMapsSearchUrl(address)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="footer-contact-link font-wrap"
                 >
-                  123 Clinic Street, Medical District, Riyadh, Saudi Arabia
+                  {address}
                 </a>
               </p>
             </div>
             <div className="footer-address-item">
               <span className="address-label">Direct Lines</span>
               <p>
-                <a href="tel:+201011604114" className="footer-contact-link">+20 10 11 60 4114</a>
+                <a href={`tel:${phone}`} className="footer-contact-link">{phone}</a>
               </p>
               <p>
-                <a href="mailto:hello@demo.dentorash.app" className="footer-contact-link">hello@demo.dentorash.app</a>
+                <a href={`mailto:${email}`} className="footer-contact-link">{email}</a>
               </p>
             </div>
           </address>
@@ -209,10 +232,10 @@ export function SiteFooter() {
       <div className="footer-bottom">
         <div className="copyright-group">
           <p className="copyright">
-            © Northline Dental Clinic · Fictional showcase platform for DentoRash.
+            © Northline Dental Clinic
           </p>
           <p className="copyright-sub">
-            All clinical examples, prices, and staff profiles are mock demonstration data.
+            All Rights Reserved. Designed &amp; Developed by <a href="https://rashads-web-dev.vercel.app" className="font-bold text-green-500 hover:text-blue-700" target="_blank" rel="noopener noreferrer">Rashad&apos;s Web Dev</a>.
           </p>
         </div>
         <a href="#page-top" className="back-top" aria-label="Back to the top of this page">

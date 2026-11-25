@@ -1,6 +1,6 @@
 import {
     boolean, date, integer, jsonb, numeric, pgEnum, pgTable, text,
-    time, timestamp, uuid,
+    time, timestamp, uniqueIndex, uuid,
 } from "drizzle-orm/pg-core";
 
 /* Every table has RLS enabled with NO policies: the Supabase REST API (anon /
@@ -42,6 +42,13 @@ export const staffMembers = pgTable("staff_members", {
     phone: text("phone"),
     role: roleEnum("role").notNull().default("receptionist"),
     specialty: text("specialty"),
+    publicTitle: text("public_title"),
+    experience: text("experience"),
+    availability: text("availability"),
+    languages: text("languages").array().notNull().default([]),
+    qualifications: text("qualifications").array().notNull().default([]),
+    bio: text("bio"),
+    philosophy: text("philosophy"),
     color: text("color").default("#087f80"),
     commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("0"),
     branchId: uuid("branch_id").references(() => branches.id),
@@ -235,6 +242,23 @@ export const clinicSettings = pgTable("clinic_settings", {
     ...stamps,
 }).enableRLS();
 
+export const doctorMonthlySalaries = pgTable(
+    "doctor_monthly_salaries",
+    {
+        id: uuid("id").primaryKey().defaultRandom(),
+        doctorId: uuid("doctor_id").notNull().references(() => staffMembers.id),
+        /** Format: YYYY-MM, e.g. "2026-11" */
+        month: text("month").notNull(),
+        grossRevenue: numeric("gross_revenue", { precision: 12, scale: 2 }).notNull().default("0"),
+        commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).notNull().default("0"),
+        salaryAmount: numeric("salary_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+        appointmentsCount: integer("appointments_count").notNull().default(0),
+        calculatedAt: timestamp("calculated_at", { withTimezone: true }).notNull().defaultNow(),
+        ...stamps,
+    },
+    (t) => [uniqueIndex("doctor_monthly_salaries_doctor_month_idx").on(t.doctorId, t.month)]
+).enableRLS();
+
 export type Patient = typeof patients.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
@@ -246,3 +270,4 @@ export type LabOrder = typeof labOrders.$inferSelect;
 export type InsuranceClaim = typeof insuranceClaims.$inferSelect;
 export type ToothFinding = typeof toothFindings.$inferSelect;
 export type ClinicSettings = typeof clinicSettings.$inferSelect;
+export type DoctorMonthlySalary = typeof doctorMonthlySalaries.$inferSelect;

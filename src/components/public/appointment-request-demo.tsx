@@ -29,7 +29,7 @@ export function AppointmentRequestDemo() {
       <form className="request-form" noValidate onSubmit={handleSubmit}>
         <div className="form-heading">
           <span className="form-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 3.5c-2.2 0-3.7 1.1-5.7 1.1-1.7 0-3.4-.8-5.1.1-2 1.1-2.2 4.2-1.7 7.2.8 4.9 3.5 13.8 6.2 16.1 1.5 1.3 2.8.2 3.4-2.2.7-2.7 1-5.1 2.9-5.1s2.2 2.4 2.9 5.1c.6 2.4 1.9 3.5 3.4 2.2 2.7-2.3 5.4-11.2 6.2-16.1.5-3 .3-6.1-1.7-7.2-1.7-.9-3.4-.1-5.1-.1-2 0-3.5-1.1-5.7-1.1Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M16 8v8m-4-4h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg></span>
-          <div><h3>Appointment request preview</h3><p>Fictional clinic details</p></div>
+          <div><h3>Appointment request preview</h3></div>
           <span className="demo-chip">Demo</span>
         </div>
         <label className="field">

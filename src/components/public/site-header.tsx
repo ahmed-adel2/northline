@@ -22,7 +22,7 @@ function BrandSymbol() {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -50,11 +50,11 @@ export function SiteHeader() {
     { href: "/about", label: "About" },
     { href: "/team", label: "Team" },
     { href: "/services", label: "Services" },
-    { href: "/pricelist", label: "Pricelist" },
     { href: "/cases", label: "Cases" },
     { href: "/testimonials", label: "Testimonials" },
     { href: "/contact", label: "Contact" },
   ];
+  if (showPricelist) navLinks.splice(4, 0, { href: "/pricelist", label: "Pricelist" });
 
   return (
     <header className={`site-header ${scrolled ? "scrolled" : ""}`} role="banner">

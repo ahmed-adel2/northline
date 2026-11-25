@@ -1,9 +1,16 @@
-export function WhatsAppChatButton() {
+export function WhatsAppChatButton({
+  phone = "+201011604114",
+  clinicName = "Northline Dental Clinic",
+}: {
+  phone?: string;
+  clinicName?: string;
+}) {
+  const waNumber = phone.replace(/[^0-9]/g, "");
   return (
     <a
-      href="https://wa.me/201011604114?text=Hello%20Northline%20Dental%20Clinic"
+      href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hello ${clinicName}`)}`}
       className="whatsapp-chat-button"
-      aria-label="Chat with Northline Dental Clinic on WhatsApp"
+      aria-label={`Chat with ${clinicName} on WhatsApp`}
       title="Chat on WhatsApp"
       target="_blank"
       rel="noopener noreferrer"
