@@ -15,6 +15,20 @@
       "when": 1795399061984,
       "tag": "0001_swift_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795557134006,
+      "tag": "0002_sloppy_ronan",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795570925601,
+      "tag": "0003_aberrant_lily_hollister",
+      "breakpoints": true
     }
   ]
 }

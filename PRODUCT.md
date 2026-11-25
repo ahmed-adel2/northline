@@ -30,7 +30,7 @@ Because it is resold to multiple clinics, success also means a new clinic can be
 
 ## Positioning
 
-Built for dentistry rather than adapted to it. Charting, per-tooth treatment planning, insurance claims, and ZATCA e-invoicing are first-class parts of the product, and every figure traces back to a procedure, a tooth, and a doctor.
+Built for dentistry rather than adapted to it. Charting, per-tooth treatment planning, insurance claims are first-class parts of the product, and every figure traces back to a procedure, a tooth, and a doctor.
 
 The template position is the differentiator: one clinic, one deployment, one database. A clinic's patients, prices, and records are physically separated from every other clinic's, its public site wears its own branding, and its staff accounts exist only inside it. Multi-branch operation is supported inside a single clinic.
 
@@ -38,7 +38,6 @@ The template position is the differentiator: one clinic, one deployment, one dat
 
 - The public site is the first touch: hero, about, team and qualifications, services, published pricelist, treated cases, patient testimonials, contact details, social links, and a persistent WhatsApp button.
 - The clinic day: appointment calendar, check-in, in-chair charting, treatment plan acceptance, invoicing at the desk, recall and follow-up.
-- Regulatory context in Saudi Arabia: ZATCA phase 2 e-invoicing and NPHIES insurance claims. Both ship as adapter interfaces with mocks in v1; certification is an external process.
 - Multi-branch groups compare locations; branch staff are scoped to their own branch.
 - Evaluation path for a clinic buyer: see the demo site, sign in to the demo clinic, then provision their own instance with their own branding, staff, procedures, and price list.
 - Middle East and North Africa, with Egypt and Saudi Arabia as anchor markets. English ships first; Arabic and RTL are deferred but structurally planned for.
@@ -48,7 +47,7 @@ The template position is the differentiator: one clinic, one deployment, one dat
 
 **Public site.** Home, about, team with qualifications and photos, services, published pricelist, treated cases with before/after images, testimonials, contact form, social links (Facebook, Instagram, WhatsApp, LinkedIn, email), opening hours, map, and a sticky WhatsApp contact button.
 
-**Internal system.** Dynamic dashboard · patient profile and journey · dental chart (Universal and FDI notation, mixed dentition, perio charting, online signature) · patient management · CRM · automation and reminders · loyalty points · patient feedback · finance · treasury · payments · quotations · insurance management · ZATCA e-invoicing · NPHIES · payroll and commissions · inventory · labs · QR codes · consent forms · tasks · analytics · quick reports · patient map · team management · security · integrations · settings · logs.
+**Internal system.** Dynamic dashboard · patient profile and journey · dental chart (Universal and FDI notation, mixed dentition, perio charting, online signature) · patient management · CRM · automation and reminders · loyalty points · patient feedback · finance · treasury · payments · quotations · insurance management · payroll and commissions · inventory · labs · QR codes · consent forms · tasks · analytics · quick reports · patient map · team management · security · integrations · settings · logs.
 
 **Explicitly out of v1.** WhatsApp Bot and WhatsApp automation (no Cloud API access; replaced by `wa.me` links and email). Native iOS, Android, and Huawei apps (responsive web instead that is completly responsive in mobile, tablet, and laptop viewports). PWA and service worker (so the app cannot launch offline). Full offline operation — charting only survives a dropped connection while the screen is open. Arabic and RTL.
 
@@ -64,7 +63,7 @@ The template position is the differentiator: one clinic, one deployment, one dat
 2. **Public clinic site.** Home, about, team and qualifications, services, pricelist, cases, testimonials, contact, socials, sticky WhatsApp, SEO, publishing admin.
 3. **Front desk.** Role-gated shell, dashboard, patients, appointment calendar, patient journey, tasks, QR codes.
 4. **Clinical.** Tooth chart (FDI and Universal, perio, signature), treatment plans, quotations, prescriptions, consent forms, R2 attachments, offline resilience for charting.
-5. **Money.** Price lists and the snapshot rule, invoices, payments, treasury, insurance and claims, ZATCA and NPHIES adapters, payroll and commissions, analytics over all-time/yearly/monthly/weekly/daily, Excel exports.
+5. **Money.** Price lists and the snapshot rule, invoices, payments, treasury, insurance and claims, payroll and commissions, analytics over all-time/yearly/monthly/weekly/daily, Excel exports.
 6. **Operations.** Inventory with automatic material deduction, labs, email automation and reminders, loyalty, feedback, CRM, patient map, logs, settings, team management.
 7. **Intelligence and polish.** AI assistant, email flows, accessibility, performance, copy proofread.
 

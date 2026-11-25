@@ -108,8 +108,6 @@ async function main() {
       { name: "WhatsApp Business", status: "not-connected", icon: "💬", description: "Automated appointment reminders and recalls (requires Cloud API access)." },
       { name: "Resend (Email)", status: "connected", icon: "✉️", description: "Transactional emails and recall campaigns." },
       { name: "Cloudflare R2", status: "connected", icon: "📁", description: "Patient file and image storage." },
-      { name: "ZATCA e-Invoicing", status: "not-connected", icon: "🧾", description: "Phase 2 clearance adapter — pending certification." },
-      { name: "NPHIES Insurance", status: "not-connected", icon: "🏥", description: "Saudi insurance claims gateway — adapter only in v1." },
     ];
     await sql`insert into clinic_settings (clinic_name, branch_name, address, phone, email, tax_id, public_pricelist, opening_hours, integrations, is_demo)
       values ('Northline Dental Clinic', 'Main Branch', '1 Tahrir Square, Downtown, Cairo, Egypt', '+20 2 2222 3333', 'hello@northline.clinic', '310122393500003', true, ${sql.json(openingHours)}, ${sql.json(integrations)}, true)`;
