@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatCurrency } from "@/lib/demo-data";
 import { addInventoryItem, restockInventoryItem } from "./actions";
 import { InventoryItem } from "@/db";
@@ -23,6 +23,8 @@ export function InventoryClient({ initialItems }: { initialItems: InventoryItem[
   const [restockModalItem, setRestockModalItem] = useState<InventoryItem | null>(null);
   const [restockQty, setRestockQty] = useState("10");
   const [submitting, setSubmitting] = useState(false);
+  const [inventoryScrollEdge, setInventoryScrollEdge] = useState<"none" | "start" | "end">("none");
+  const inventoryTableWrapRef = useRef<HTMLDivElement>(null);
 
   // New item form state
   const [newName, setNewName] = useState("");
@@ -46,6 +48,37 @@ export function InventoryClient({ initialItems }: { initialItems: InventoryItem[
     });
   }, [items, search, categoryFilter]);
 
+  useEffect(() => {
+    const tableWrap = inventoryTableWrapRef.current;
+    if (!tableWrap) return;
+
+    const updateScrollEdge = () => {
+      const maxScrollLeft = tableWrap.scrollWidth - tableWrap.clientWidth;
+
+      if (maxScrollLeft <= 1) {
+        setInventoryScrollEdge("none");
+      } else if (tableWrap.scrollLeft <= 1) {
+        setInventoryScrollEdge("end");
+      } else if (maxScrollLeft - tableWrap.scrollLeft <= 1) {
+        setInventoryScrollEdge("start");
+      } else {
+        setInventoryScrollEdge("none");
+      }
+    };
+
+    updateScrollEdge();
+    tableWrap.addEventListener("scroll", updateScrollEdge, { passive: true });
+
+    const resizeObserver = new ResizeObserver(updateScrollEdge);
+    resizeObserver.observe(tableWrap);
+    const table = tableWrap.querySelector("table");
+    if (table) resizeObserver.observe(table);
+
+    return () => {
+      tableWrap.removeEventListener("scroll", updateScrollEdge);
+      resizeObserver.disconnect();
+    };
+  }, [filteredItems.length]);
   const lowStock = useMemo(() => items.filter((i) => i.status === "low" || i.status === "out-of-stock"), [items]);
   const inStockCount = useMemo(() => items.filter((i) => i.status === "in-stock").length, [items]);
   const totalValue = useMemo(() => items.reduce((s, i) => s + i.quantity * (parseFloat(i.unitCost) || 0), 0), [items]);
@@ -160,8 +193,8 @@ export function InventoryClient({ initialItems }: { initialItems: InventoryItem[
       </div>
 
       {/* Table */}
-      <div className="table-wrap card">
-        <table className="data-table">
+      <div className="table-wrap card inventory-table-wrap" data-scroll-edge={inventoryScrollEdge} ref={inventoryTableWrapRef} role="region" aria-label="Inventory items table. Scroll horizontally to view all columns." tabIndex={0}>
+        <table className="data-table inventory-data-table">
           <thead>
             <tr>
               <th>SKU</th>
@@ -178,19 +211,19 @@ export function InventoryClient({ initialItems }: { initialItems: InventoryItem[
           <tbody>
             {filteredItems.map((item) => (
               <tr key={item.id}>
-                <td style={{ fontWeight: 650, fontFamily: "var(--font-geist-mono)" }}>{item.sku}</td>
-                <td style={{ fontWeight: 600 }}>{item.name}</td>
-                <td>{item.category}</td>
-                <td>
+                <td data-label="SKU" style={{ fontWeight: 650, fontFamily: "var(--font-geist-mono)" }}>{item.sku}</td>
+                <td data-label="Material / Item Name" style={{ fontWeight: 600 }}>{item.name}</td>
+                <td data-label="Category">{item.category}</td>
+                <td data-label="Stock">
                   <strong>{item.quantity}</strong> {item.unit}s
                 </td>
-                <td>{item.minQuantity} {item.unit}s</td>
-                <td style={{ fontFamily: "var(--font-geist-mono)" }}>EGP {formatCurrency(parseFloat(item.unitCost) || 0)}</td>
-                <td>{item.supplier || "—"}</td>
-                <td>
+                <td data-label="Min safety level">{item.minQuantity} {item.unit}s</td>
+                <td data-label="Unit cost" style={{ fontFamily: "var(--font-geist-mono)" }}>EGP {formatCurrency(parseFloat(item.unitCost) || 0)}</td>
+                <td data-label="Supplier">{item.supplier || "—"}</td>
+                <td data-label="Status">
                   <span className={`badge badge-${item.status}`}>{item.status}</span>
                 </td>
-                <td>
+                <td data-label="Action">
                   <button
                     type="button"
                     className="button button-secondary"

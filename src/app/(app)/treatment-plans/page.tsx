@@ -12,7 +12,12 @@ export default async function TreatmentPlansPage() {
   const [plansRows, patientsRows, doctorsRows] = await Promise.all([
     db.select().from(treatmentPlans).orderBy(desc(treatmentPlans.createdAt)),
     db
-      .select({ id: patients.id, name: patients.fullName })
+      .select({
+        id: patients.id,
+        name: patients.fullName,
+        patientNo: patients.patientNo,
+        phone: patients.phone,
+      })
       .from(patients)
       .where(isNull(patients.archivedAt))
       .orderBy(patients.fullName),

@@ -47,7 +47,8 @@
   border-radius: var(--clinic-radius-sm, 0.5rem);
   background: var(--clinic-surface);
   color: var(--clinic-ink);
-  font-size: 1rem; /* prevents iOS zoom-on-focus */
+  font-size: 1rem;
+  /* prevents iOS zoom-on-focus */
   font-weight: 400;
   transition: border-color 160ms ease, box-shadow 160ms ease;
   outline: none;
@@ -57,7 +58,7 @@
 .m-field select:focus,
 .m-field textarea:focus {
   border-color: var(--clinic-teal);
-  box-shadow: 0 0 0 3px var(--clinic-teal-glow, rgba(8,127,128,0.14));
+  box-shadow: 0 0 0 3px var(--clinic-teal-glow, rgba(8, 127, 128, 0.14));
 }
 
 .m-field textarea {
@@ -187,9 +188,15 @@ a.m-row:active {
   white-space: nowrap;
 }
 
-.m-time-start { }
-.m-time-sep { opacity: 0.6; }
-.m-time-end { opacity: 0.75; }
+.m-time-start {}
+
+.m-time-sep {
+  opacity: 0.6;
+}
+
+.m-time-end {
+  opacity: 0.75;
+}
 
 /* Money / financial */
 .m-money-due {
@@ -248,8 +255,15 @@ a.m-row:active {
 }
 
 @keyframes emptyFadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* --- Filter chips --- */
@@ -295,7 +309,7 @@ a.m-row:active {
 
 .m-search input:focus {
   border-color: var(--clinic-teal);
-  box-shadow: 0 0 0 3px var(--clinic-teal-glow, rgba(8,127,128,0.12));
+  box-shadow: 0 0 0 3px var(--clinic-teal-glow, rgba(8, 127, 128, 0.12));
 }
 
 /* --- Stack layouts --- */
@@ -358,7 +372,8 @@ a.m-row:active {
   font-weight: 500;
   transition: background 160ms ease, border-color 160ms ease, transform 100ms ease;
   position: relative;
-  min-height: 3.5rem; /* touch target */
+  min-height: 3.5rem;
+  /* touch target */
 }
 
 .m-day-name {
@@ -545,12 +560,12 @@ a.m-row:active {
   }
 
   /* Hide sidebar — replaced by bottom nav */
-  .internal-shell > .sidebar {
+  .internal-shell>.sidebar {
     display: none !important;
   }
 
   /* Sticky top bar */
-  .internal-shell > .topbar {
+  .internal-shell>.topbar {
     position: sticky;
     top: 0;
     z-index: 30;
@@ -735,14 +750,107 @@ a.m-row:active {
     overflow-y: auto;
   }
 
-  /* ---- Tooth chart: scroll horizontally ---- */
+  /* ---- Clinical patient names and chart: fit the phone viewport ---- */
+  .patient-btn-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .patient-selector-name,
+  .patient-selector-meta {
+    overflow-wrap: anywhere;
+  }
+
+  .clinical-patient-banner {
+    align-items: flex-start;
+    padding: 0.8rem;
+  }
+
+  .banner-left,
+  .banner-left>div {
+    min-width: 0;
+  }
+
+  .banner-patient-code {
+    flex-shrink: 0;
+  }
+
+  .banner-patient-name {
+    display: block;
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+
+  .banner-patient-sub {
+    overflow-wrap: anywhere;
+  }
+
   .chart-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    min-width: 0;
+    padding: 0.75rem;
+    overflow: visible;
+  }
+
+  .chart-top-bar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .chart-arch-indicator {
+    overflow-wrap: anywhere;
+  }
+
+  .quadrant-header-row {
+    gap: 0.35rem;
+    padding: 0;
+  }
+
+  .quadrant-badge {
+    min-width: 0;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.55rem;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
   }
 
   .tooth-row {
-    min-width: 36rem;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.2rem;
+    overflow: visible;
+  }
+
+  .tooth-cell {
+    flex: 0 0 calc((100% - 1.4rem) / 8);
+    min-width: 0;
+    height: 4.35rem;
+    gap: 0.1rem;
+    padding: 0.25rem 0.08rem;
+    border-radius: var(--radius-xs);
+  }
+
+  .tooth-svg {
+    width: 1.35rem;
+    height: 1.65rem;
+  }
+
+  .tooth-status-pill {
+    max-width: 100%;
+    font-size: clamp(0.36rem, 1.8vw, 0.48rem);
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .midline-divider {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 1px;
+    margin: 0.1rem 0;
   }
 
   /* ---- Team grid ---- */
@@ -774,10 +882,90 @@ a.m-row:active {
     align-items: center !important;
   }
 
-  /* ---- Bar chart ---- */
+  /* ---- Bar chart & Analytics ---- */
+  .analytics-chart-card,
+  .analytics-table-card {
+    grid-column: span 1;
+  }
+
+  .analytics-range-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .analytics-range-pill {
+    flex: 0 0 auto;
+  }
+
   .bar-chart {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    gap: 0.35rem;
+  }
+
+  .bar-group {
+    flex: 0 0 3.5rem;
+    min-width: 3.5rem;
+  }
+
+  .bar-value {
+    display: none;
+  }
+
+  .legend-hint {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* Performance breakdown table: keep tabular form & fit mobile */
+  .analytics-table-card .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .analytics-table-card .data-table {
+    display: table !important;
+    width: 100%;
+    min-width: 32rem;
+    border-collapse: collapse;
+  }
+
+  .analytics-table-card .data-table thead {
+    display: table-header-group !important;
+  }
+
+  .analytics-table-card .data-table thead tr {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+  }
+
+  .analytics-table-card .data-table tbody {
+    display: table-row-group !important;
+  }
+
+  .analytics-table-card .data-table tr {
+    display: table-row !important;
+  }
+
+  .analytics-table-card .data-table th,
+  .analytics-table-card .data-table td {
+    display: table-cell !important;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+
+  .analytics-table-card .data-table th:first-child,
+  .analytics-table-card .data-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--clinic-surface, #fff);
+    box-shadow: 1px 0 0 var(--clinic-hairline);
   }
 
   /* ---- Forms ---- */
@@ -802,6 +990,15 @@ a.m-row:active {
 
   .filter-search {
     width: 100% !important;
+    height: 2.4rem;
+    height: 2.5rem
+  }
+
+  .insurance-wrap .filter-search {
+    height: 3.25rem !important;
+    min-height: 3.25rem;
+    padding-block: 0;
+    font-size: 1rem;
   }
 
   /* ---- Action grid (dashboard quick actions) ---- */
@@ -837,9 +1034,147 @@ a.m-row:active {
     padding-bottom: 0.25rem;
   }
 
-  /* ---- Treatment plans: table scroll ---- */
-  .treatment-plan-card .table-wrap {
-    overflow-x: auto;
+  /* ---- Treatment plans: readable, wrapping plan details ---- */
+  .treatment-wrap {
+    min-width: 0;
+    gap: 1rem;
+  }
+
+  .treatment-plan-card {
+    min-width: 0;
+  }
+
+  .treatment-plan-card>.card-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.9rem;
+  }
+
+  .treatment-plan-card>.card-header>div {
+    min-width: 0;
+    gap: 0.5rem !important;
+  }
+
+  .treatment-plan-card .patient-id,
+  .treatment-plan-card .patient-name,
+  .treatment-plan-card .badge {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-plan-card>.card-header .button {
+    min-height: 44px !important;
+    padding: 0.55rem 0.8rem !important;
+  }
+
+  .treatment-plan-card .plan-body {
+    min-width: 0;
+    gap: 0.85rem;
+    padding: 0.75rem;
+  }
+
+  .treatment-plan-card .plan-items-table {
+    display: block;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .treatment-plan-card .plan-items-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .treatment-plan-card .plan-items-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .treatment-plan-card .plan-items-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.6rem;
+    border: 1px solid var(--clinic-hairline);
+    border-radius: var(--radius-sm);
+    background: var(--clinic-surface);
+  }
+
+  .treatment-plan-card .plan-items-table td {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.3rem;
+    border: 0;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-plan-card .plan-items-table td::before {
+    color: var(--clinic-muted);
+    font-size: 0.66rem;
+    font-weight: 650;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(1)::before {
+    content: "Tooth";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(2)::before {
+    content: "Procedure";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(3)::before {
+    content: "Qty";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(4)::before {
+    content: "Unit price";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(5)::before {
+    content: "Status";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(5) .badge {
+    min-height: 44px;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .treatment-plan-card .plan-progress {
+    min-width: 0;
+    padding: 0.75rem;
+  }
+
+  .treatment-plan-card .progress-bar-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-plan-card .plan-notes {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
   }
 
   /* ---- Tasks details/create form ---- */
@@ -925,8 +1260,13 @@ a.m-row:active {
   }
 
   @keyframes scrimFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   .m-sheet-panel {
@@ -942,8 +1282,15 @@ a.m-row:active {
   }
 
   @keyframes sheetSlideUp {
-    from { transform: translateY(60%); opacity: 0.6; }
-    to   { transform: translateY(0);   opacity: 1; }
+    from {
+      transform: translateY(60%);
+      opacity: 0.6;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   /* Sheet drag handle */
@@ -1034,7 +1381,392 @@ a.m-row:active {
     background: var(--clinic-teal-tint);
   }
 
-} /* end @media (max-width: 767px) */
+  /* ---- Keep modal overlays anchored to the visible phone screen ---- */
+  .internal-container:has(.modal-backdrop) {
+    animation: none;
+  }
+
+  .modal-backdrop {
+    align-items: flex-start;
+    justify-content: center;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 0.75rem calc(1rem + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: calc(100dvh - 5.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    margin: 0;
+  }
+
+  .modal-header-strip,
+  .modal-footer {
+    flex-shrink: 0;
+  }
+
+  .modal-body {
+    min-height: 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-close-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .modal-footer .button {
+    min-height: 44px;
+  }
+
+  .treatment-patient-search {
+    gap: 0.75rem;
+    padding: 0.9rem;
+  }
+
+  .treatment-patient-search-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .treatment-patient-search-heading .button {
+    min-height: 44px;
+  }
+
+  .treatment-patient-selection {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .treatment-plan-empty {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .treatment-plan-empty .button {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+}
+
+/* end @media (max-width: 767px) */
+
+@media (max-width: 1440px) {
+  .invoice-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .invoice-data-table,
+  .invoice-data-table thead,
+  .invoice-data-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .invoice-data-table thead tr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .invoice-data-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0 0 0.85rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--clinic-hairline);
+    border-radius: var(--clinic-radius-md, 0.75rem);
+    background: var(--clinic-surface);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .invoice-data-table tbody td {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 0.7rem 0.55rem;
+    border: 0;
+    border-bottom: 1px solid var(--clinic-hairline-soft);
+    position: static;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+    font-size: 0.875rem;
+  }
+
+  .invoice-data-table tbody td::before {
+    position: static;
+    width: auto;
+    padding: 0;
+    transform: none;
+    color: var(--clinic-muted);
+    content: attr(data-label);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.045em;
+    line-height: 1.25;
+    text-transform: uppercase;
+    white-space: normal;
+  }
+
+  .invoice-data-table tbody td:nth-child(9),
+  .invoice-data-table tbody td:nth-child(10) {
+    border-bottom: 0;
+  }
+
+  .invoice-data-table tbody td:nth-child(10) {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+  }
+
+  .invoice-data-table tbody td:nth-child(10) .button {
+    min-height: 44px !important;
+  }
+
+  .invoice-data-table .insurance-pill,
+  .invoice-data-table .badge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 767px) {
+  .invoice-data-table tbody tr {
+    margin-bottom: 0.75rem;
+    padding: 0.35rem 0.55rem;
+  }
+
+  .invoice-data-table tbody td {
+    padding: 0.65rem 0.4rem;
+    font-size: 0.875rem;
+  }
+
+  .invoice-data-table tbody td:nth-child(10) {
+    grid-column: 1 / -1;
+  }
+
+  .invoice-data-table tbody td:nth-child(10) .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1440px) {
+  .insurance-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .insurance-data-table,
+  .insurance-data-table thead,
+  .insurance-data-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .insurance-data-table thead tr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .insurance-data-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0 0 0.85rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--clinic-hairline);
+    border-radius: var(--clinic-radius-md, 0.75rem);
+    background: var(--clinic-surface);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .insurance-data-table tbody td {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 0.7rem 0.55rem;
+    border: 0;
+    border-bottom: 1px solid var(--clinic-hairline-soft);
+    position: static;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+    font-size: 0.875rem;
+  }
+
+  .insurance-data-table tbody td::before {
+    position: static;
+    width: auto;
+    padding: 0;
+    transform: none;
+    color: var(--clinic-muted);
+    content: attr(data-label);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.045em;
+    line-height: 1.25;
+    text-transform: uppercase;
+    white-space: normal;
+  }
+
+  .insurance-data-table tbody td:nth-child(8),
+  .insurance-data-table tbody td:nth-child(9) {
+    border-bottom: 0;
+  }
+
+  .insurance-data-table tbody td:nth-child(9) {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+  }
+
+  .insurance-data-table tbody td:nth-child(9) .button {
+    min-height: 44px !important;
+  }
+
+  .insurance-data-table .insurance-pill,
+  .insurance-data-table .badge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 767px) {
+  .insurance-data-table tbody tr {
+    margin-bottom: 0.75rem;
+    padding: 0.35rem 0.55rem;
+  }
+
+  .insurance-data-table tbody td {
+    padding: 0.65rem 0.4rem;
+    font-size: 0.875rem;
+  }
+
+  .insurance-data-table tbody td:nth-child(9) {
+    grid-column: 1 / -1;
+  }
+
+  .insurance-data-table tbody td:nth-child(9) .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.inventory-table-wrap {
+  position: relative;
+  isolation: isolate;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.inventory-table-wrap::before,
+.inventory-table-wrap::after {
+  position: absolute;
+  inset-block: 0;
+  z-index: 3;
+  width: 1.75rem;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.inventory-table-wrap::before {
+  inset-inline-start: 0;
+  background: linear-gradient(90deg, rgba(93, 125, 108, 0.3), transparent);
+}
+
+.inventory-table-wrap::after {
+  inset-inline-end: 0;
+  background: linear-gradient(270deg, rgba(93, 125, 108, 0.3), transparent);
+}
+
+.inventory-table-wrap[data-scroll-edge="start"]::before,
+.inventory-table-wrap[data-scroll-edge="end"]::after {
+  opacity: 1;
+}
+
+.inventory-data-table {
+  width: 100%;
+  min-width: 1180px;
+  border-collapse: collapse;
+}
+
+@media (max-width: 767px) {
+  .inventory-table-wrap .inventory-data-table {
+    display: table;
+    width: max-content;
+    min-width: 1180px;
+  }
+
+  .inventory-table-wrap .inventory-data-table thead tr {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .inventory-table-wrap .inventory-data-table thead {
+    display: table-header-group;
+  }
+
+  .inventory-table-wrap .inventory-data-table tbody {
+    display: table-row-group;
+  }
+
+  .inventory-table-wrap .inventory-data-table tr {
+    display: table-row;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .inventory-table-wrap .inventory-data-table th,
+  .inventory-table-wrap .inventory-data-table td {
+    display: table-cell;
+    position: static;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .inventory-table-wrap .inventory-data-table td::before {
+    display: none;
+    content: none;
+  }
+
+  .inventory-table-wrap .inventory-data-table td:last-child .button {
+    min-height: 44px !important;
+  }
+}
 
 @media (max-width: 360px) {
   .topbar {
@@ -1058,6 +1790,7 @@ a.m-row:active {
    §7  TABLET RANGE  (768px – 1023px)
    ================================================================ */
 @media (min-width: 768px) and (max-width: 1023px) {
+
   .kpi-grid,
   .kpi-grid-4 {
     grid-template-columns: repeat(2, 1fr);
@@ -1074,6 +1807,7 @@ a.m-row:active {
    §8  DESKTOP  (≥768px) — override mobile primitives
    ================================================================ */
 @media (min-width: 768px) {
+
   /* Chips: wrap instead of scroll */
   .m-chips {
     margin: 0;
@@ -1091,6 +1825,7 @@ a.m-row:active {
    §9  REDUCED-MOTION SAFETY
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
+
   .m-row,
   .m-appt,
   .m-day,
@@ -1099,5 +1834,569 @@ a.m-row:active {
   .m-empty {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+.clinical-print-meta {
+  display: none;
+}
+
+.invoice-print-area {
+  display: block;
+  width: min(100%, 52rem);
+  margin: 0 auto;
+  padding: 2rem;
+  color: #172b2b;
+  background: #fff;
+  box-shadow: 0 12px 36px rgb(13 39 40 / 16%);
+}
+
+.invoice-preview-overlay {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  padding: max(1rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+  background: rgb(12 29 31 / 72%);
+  -webkit-overflow-scrolling: touch;
+}
+
+.invoice-preview-shell {
+  width: min(100%, 56rem);
+  margin: auto;
+}
+
+.invoice-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.invoice-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.invoice-brand-mark {
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border: 1px solid #d5dfdf;
+  border-radius: 0.8rem;
+  color: #147e78;
+}
+
+.invoice-brand-mark svg {
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
+@media print {
+  body.printing-invoice * {
+    visibility: hidden !important;
+  }
+
+  body.printing-invoice .invoice-print-area,
+  body.printing-invoice .invoice-print-area * {
+    visibility: visible !important;
+  }
+
+  body.printing-invoice .invoice-preview-overlay,
+  body.printing-invoice .invoice-preview-shell {
+    visibility: visible !important;
+  }
+
+  body.printing-invoice .invoice-preview-overlay,
+  body.printing-invoice .invoice-preview-shell {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body.printing-invoice .invoice-preview-actions {
+    display: none !important;
+  }
+
+  body.printing-invoice .invoice-print-area {
+    display: block !important;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    padding: 12mm;
+    color: #172b2b !important;
+    background: #fff !important;
+    font: 11pt/1.5 Arial, sans-serif;
+  }
+
+  body.printing-invoice .invoice-brand-mark {
+    border-color: #d5dfdf !important;
+    color: #147e78 !important;
+  }
+
+  body.printing-invoice .invoice-print-header,
+  body.printing-invoice .invoice-print-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #d5dfdf;
+    margin-bottom: 1.25rem;
+  }
+
+  body.printing-invoice .invoice-print-header h1 {
+    margin: 0.25rem 0;
+    font-size: 26pt;
+  }
+
+  body.printing-invoice .invoice-print-header p {
+    margin: 0;
+    font-weight: 700;
+    font-size: 14pt;
+  }
+
+  body.printing-invoice .invoice-print-number {
+    display: grid;
+    justify-items: end;
+    align-content: center;
+  }
+
+  body.printing-invoice .invoice-print-grid>div {
+    flex: 1;
+  }
+
+  body.printing-invoice .invoice-print-grid h2,
+  body.printing-invoice .invoice-print-notes h2 {
+    margin: 0 0 0.35rem;
+    font-size: 10pt;
+    text-transform: uppercase;
+  }
+
+  body.printing-invoice .invoice-print-grid p,
+  body.printing-invoice .invoice-print-notes p {
+    margin: 0.15rem 0;
+  }
+
+  body.printing-invoice .invoice-print-totals {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+  }
+
+  body.printing-invoice .invoice-print-totals th,
+  body.printing-invoice .invoice-print-totals td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid #e1e8e8;
+    text-align: right;
+  }
+
+  body.printing-invoice .invoice-print-totals th {
+    font-weight: 500;
+  }
+
+  body.printing-invoice .invoice-print-grand-total {
+    font-weight: 700;
+    font-size: 14pt;
+  }
+
+  body.printing-invoice .invoice-print-notes {
+    margin-top: 2rem;
+  }
+
+  body.printing-invoice .invoice-print-area footer {
+    margin-top: 3rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #d5dfdf;
+    color: #526565;
+    font-size: 9pt;
+  }
+}
+
+@media print {
+  body.printing-clinical-chart * {
+    visibility: hidden !important;
+  }
+
+  body.printing-clinical-chart .clinical-print-area,
+  body.printing-clinical-chart .clinical-print-area * {
+    visibility: visible !important;
+  }
+
+  body.printing-clinical-chart .internal-shell,
+  body.printing-clinical-chart .internal-body,
+  body.printing-clinical-chart .internal-content,
+  body.printing-clinical-chart .internal-container {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    animation: none !important;
+    transform: none !important;
+    background: #ffffff !important;
+  }
+
+  body.printing-clinical-chart .clinical-wrap {
+    display: block !important;
+    gap: 0 !important;
+  }
+
+  body.printing-clinical-chart .clinical-wrap>.page-header,
+  body.printing-clinical-chart .clinical-sidebar,
+  body.printing-clinical-chart .active-tooth-panel,
+  body.printing-clinical-chart .topbar,
+  body.printing-clinical-chart .sidebar,
+  body.printing-clinical-chart .m-nav {
+    display: none !important;
+  }
+
+  body.printing-clinical-chart .clinical-grid,
+  body.printing-clinical-chart .clinical-main {
+    display: block !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+
+  body.printing-clinical-chart .clinical-print-area {
+    display: block !important;
+    width: 100% !important;
+    color: #132a2c !important;
+  }
+
+  body.printing-clinical-chart .clinical-print-meta {
+    display: flex !important;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #d8e5e5;
+    font-size: 10pt;
+  }
+
+  body.printing-clinical-chart .clinical-patient-banner {
+    margin: 0 0 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    box-shadow: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body.printing-clinical-chart .chart-container {
+    gap: 0.65rem !important;
+    padding: 0.75rem !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  body.printing-clinical-chart .tooth-row {
+    min-width: 0 !important;
+    gap: 0.2rem !important;
+    overflow: visible !important;
+  }
+
+  body.printing-clinical-chart .tooth-cell {
+    min-width: 2.45rem !important;
+    height: 4.5rem !important;
+    padding: 0.3rem 0.15rem !important;
+    transform: none !important;
+    box-shadow: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body.printing-clinical-chart .chart-legend-row {
+    gap: 0.35rem !important;
+    padding-top: 0.5rem !important;
+  }
+
+  body.printing-clinical-chart .clinical-print-meta time:empty {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1700px) {
+  .chart-container {
+    min-width: 0;
+    padding: 1rem;
+  }
+
+  .chart-top-bar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chart-arch-indicator {
+    overflow-wrap: anywhere;
+  }
+
+  .tooth-row {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem;
+    overflow: visible;
+  }
+
+  .tooth-cell {
+    flex: 0 0 calc((100% - 1.75rem) / 8);
+    min-width: 0;
+    height: 5.2rem;
+    gap: 0.15rem;
+    padding: 0.3rem 0.15rem;
+  }
+
+  .tooth-num {
+    font-size: 0.7rem;
+  }
+
+  .tooth-svg {
+    width: 1.5rem;
+    height: 1.85rem;
+  }
+
+  .tooth-status-pill {
+    max-width: 100%;
+    font-size: clamp(0.44rem, 0.55vw, 0.58rem);
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .midline-divider {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 1px;
+    margin: 0.15rem 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1600px) {
+  .treatment-wrap {
+    gap: 1.25rem;
+  }
+
+  .treatment-plan-card>.card-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .treatment-plan-card>.card-header>div {
+    min-width: 0;
+    gap: 0.65rem !important;
+  }
+
+  .treatment-plan-card .patient-id,
+  .treatment-plan-card .patient-name,
+  .treatment-plan-card .badge {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-plan-card>.card-header .button {
+    min-height: 44px !important;
+    padding: 0.55rem 0.8rem !important;
+  }
+
+  .treatment-plan-card .plan-body {
+    min-width: 0;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+
+  .treatment-plan-card .plan-items-table {
+    display: block;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .treatment-plan-card .plan-items-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .treatment-plan-card .plan-items-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .treatment-plan-card .plan-items-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    min-width: 0;
+    padding: 0.85rem;
+    border: 1px solid var(--clinic-hairline);
+    border-radius: var(--radius-sm);
+    background: var(--clinic-surface);
+  }
+
+  .treatment-plan-card .plan-items-table td {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.4rem;
+    border: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-plan-card .plan-items-table td::before {
+    color: var(--clinic-muted);
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(1)::before {
+    content: "Tooth";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(2)::before {
+    content: "Procedure";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(3)::before {
+    content: "Qty";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(4)::before {
+    content: "Unit price";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(5)::before {
+    content: "Status";
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+
+  .treatment-plan-card .plan-items-table td:nth-child(5) .badge {
+    align-self: flex-start;
+    min-height: 44px;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .treatment-plan-card .plan-progress {
+    min-width: 0;
+    padding: 0.9rem 1rem;
+  }
+
+  .treatment-plan-card .progress-bar-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-plan-card .plan-notes {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+  }
+}
+
+/* Labs remains a shaded, horizontally scrollable table on touch screens. */
+@media (max-width: 1100px) {
+  .labs-orders-wrap {
+    position: relative;
+    isolation: isolate;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    border: 1px solid var(--clinic-hairline);
+    background: var(--clinic-surface);
+  }
+
+  .labs-orders-table {
+    display: table !important;
+    width: max-content;
+    min-width: 58rem;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .labs-orders-table thead {
+    display: table-header-group !important;
+  }
+
+  .labs-orders-table tbody {
+    display: table-row-group !important;
+  }
+
+  .labs-orders-table tr {
+    display: table-row !important;
+  }
+
+  .labs-orders-table th,
+  .labs-orders-table td {
+    display: table-cell !important;
+  }
+
+  .labs-orders-table thead tr {
+    position: static !important;
+    inset: auto !important;
+    clip: auto !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+
+  .labs-orders-table th,
+  .labs-orders-table td {
+    white-space: nowrap;
+  }
+
+  .labs-orders-table td::before {
+    content: none !important;
+  }
+
+  .labs-orders-wrap::after {
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    z-index: 4;
+    width: 1.25rem;
+    content: "";
+    background: linear-gradient(270deg, rgba(93, 125, 108, 0.444), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 160ms ease;
+  }
+
+  .labs-orders-wrap[data-scroll-edge="end"]::after {
+    opacity: 1;
   }
 }

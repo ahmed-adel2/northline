@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency, formatDate } from "@/lib/demo-data";
-import { createInvoice, recordInvoicePayment, logReportExport } from "./actions";
+import { createInvoice, recordInvoicePayment, logReportExport, updateInvoice } from "./actions";
 import { Invoice } from "@/db";
 
 function ArrowUpRight() {
@@ -18,18 +19,25 @@ const STATUS_FILTERS = ["All", "issued", "paid", "partial", "overdue", "draft"];
 export function InvoicesClient({
   initialInvoices,
   patients,
+  clinicName,
 }: {
   initialInvoices: Invoice[];
   patients: Array<{ id: string; name: string }>;
+  clinicName: string;
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentModalInvoice, setPaymentModalInvoice] = useState<Invoice | null>(null);
+  const [printingInvoice, setPrintingInvoice] = useState<Invoice | null>(null);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [submitting, setSubmitting] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editValues, setEditValues] = useState({ patientId: "", invoiceNo: "", issueDate: "", dueDate: "", subtotal: "", discount: "", tax: "", status: "issued", insurance: "", insuranceClaim: "", notes: "" });
 
   // New invoice form state
   const [newPatientId, setNewPatientId] = useState(patients[0]?.id || "");
@@ -166,6 +174,45 @@ export function InvoicesClient({
     }
   };
 
+  const openEditInvoice = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    setEditError("");
+    setEditValues({ patientId: invoice.patientId ?? "", invoiceNo: invoice.invoiceNo, issueDate: invoice.issueDate, dueDate: invoice.dueDate, subtotal: invoice.subtotal, discount: invoice.discount, tax: invoice.tax, status: invoice.status, insurance: invoice.insurance ?? "", insuranceClaim: invoice.insuranceClaim ?? "", notes: invoice.notes ?? "" });
+  };
+
+  const handleUpdateInvoice = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingInvoice) return;
+    setEditSubmitting(true);
+    setEditError("");
+    try {
+      const result = await updateInvoice(editingInvoice.id, new FormData(e.currentTarget));
+      if (!result.ok || !result.data) {
+        setEditError(result.error || "The invoice could not be saved. Check the details and try again.");
+        return;
+      }
+      setInvoices((current) => current.map((invoice) => invoice.id === editingInvoice.id ? result.data as Invoice : invoice));
+      setEditingInvoice(null);
+    } catch {
+      setEditError("The invoice could not be saved. Check your connection and try again.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const handlePrintInvoice = (invoice: Invoice) => {
+    setPrintingInvoice(invoice);
+  };
+
+  const printInvoiceNow = () => {
+    document.body.classList.add("printing-invoice");
+    window.addEventListener("afterprint", () => {
+      document.body.classList.remove("printing-invoice");
+      setPrintingInvoice(null);
+    }, { once: true });
+    window.setTimeout(() => window.print(), 100);
+  };
+
   return (
     <div className="invoices-wrap">
       <div className="page-header">
@@ -230,8 +277,8 @@ export function InvoicesClient({
       </div>
 
       {/* Invoices Table */}
-      <div className="table-wrap card">
-        <table className="data-table">
+      <div className="table-wrap card invoice-table-wrap">
+        <table className="data-table invoice-data-table">
           <thead>
             <tr>
               <th>Invoice #</th>
@@ -249,41 +296,49 @@ export function InvoicesClient({
           <tbody>
             {filteredInvoices.map((inv) => (
               <tr key={inv.id}>
-                <td style={{ fontWeight: 650, fontFamily: "var(--font-geist-mono)" }}>{inv.invoiceNo}</td>
-                <td style={{ fontWeight: 600 }}>{inv.patientName}</td>
-                <td>{formatDate(inv.issueDate)}</td>
-                <td>{formatDate(inv.dueDate)}</td>
-                <td>
+                <td data-label="Invoice #" style={{ fontWeight: 650, fontFamily: "var(--font-geist-mono)" }}>{inv.invoiceNo}</td>
+                <td data-label="Patient" style={{ fontWeight: 600 }}>{inv.patientName}</td>
+                <td data-label="Issue date">{formatDate(inv.issueDate)}</td>
+                <td data-label="Due date">{formatDate(inv.dueDate)}</td>
+                <td data-label="Insurance">
                   {inv.insurance ? (
                     <span className="insurance-pill">{inv.insurance}</span>
                   ) : (
                     <span style={{ color: "var(--clinic-muted)" }}>—</span>
                   )}
                 </td>
-                <td style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 600 }}>EGP {formatCurrency(parseFloat(inv.total) || 0)}</td>
-                <td style={{ fontFamily: "var(--font-geist-mono)", color: "var(--clinic-teal)", fontWeight: 600 }}>
+                <td data-label="Total (incl. 14% VAT)" style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 600 }}>EGP {formatCurrency(parseFloat(inv.total) || 0)}</td>
+                <td data-label="Paid" style={{ fontFamily: "var(--font-geist-mono)", color: "var(--clinic-teal)", fontWeight: 600 }}>
                   EGP {formatCurrency(parseFloat(inv.paid) || 0)}
                 </td>
-                <td style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 700, color: parseFloat(inv.balance) > 0 ? "var(--clinic-danger)" : "inherit" }}>
+                <td data-label="Remaining" style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 700, color: parseFloat(inv.balance) > 0 ? "var(--clinic-danger)" : "inherit" }}>
                   EGP {formatCurrency(parseFloat(inv.balance) || 0)}
                 </td>
-                <td>
+                <td data-label="Status">
                   <span className={`badge badge-inv-${inv.status}`}>{inv.status}</span>
                 </td>
-                <td>
-                  {parseFloat(inv.balance) > 0 && (
-                    <button
-                      type="button"
-                      className="button button-secondary"
-                      style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", minHeight: "28px" }}
-                      onClick={() => {
-                        setPaymentModalInvoice(inv);
-                        setPaymentAmount(inv.balance);
-                      }}
-                    >
-                      Confirm payment
+                <td data-label="Actions" >
+                  <div className="flex items-start gap-1">
+                    <button type="button" className="button button-secondary" style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", minHeight: "28px", marginRight: "0.4rem" }} onClick={() => openEditInvoice(inv)} aria-label={`Edit invoice ${inv.invoiceNo}`}>
+                      Edit
                     </button>
-                  )}
+                    <button type="button" className="button button-secondary" style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", minHeight: "28px", marginRight: "0.4rem" }} onClick={() => handlePrintInvoice(inv)} aria-label={`Print invoice ${inv.invoiceNo}`}>
+                      Print
+                    </button>
+                    {parseFloat(inv.balance) > 0 && (
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", minHeight: "28px" }}
+                        onClick={() => {
+                          setPaymentModalInvoice(inv);
+                          setPaymentAmount(inv.balance);
+                        }}
+                      >
+                        Confirm payment
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -477,6 +532,79 @@ export function InvoicesClient({
             </form>
           </div>
         </div>
+      )}
+
+      {editingInvoice && (
+        <div className="modal-backdrop" onClick={() => !editSubmitting && setEditingInvoice(null)}>
+          <div className="modal-card modal-card-lg" role="dialog" aria-modal="true" aria-labelledby="edit-invoice-title" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-strip">
+              <div className="modal-header-titles"><span className="modal-category-badge">Invoice record</span><h2 id="edit-invoice-title">Edit invoice</h2><p>Update billing details while keeping recorded payments intact.</p></div>
+              <button type="button" className="modal-close-btn" onClick={() => setEditingInvoice(null)} aria-label="Close dialog" disabled={editSubmitting}>×</button>
+            </div>
+            <form onSubmit={handleUpdateInvoice} style={{ display: "contents" }}>
+              <div className="modal-body">
+                <div className="modal-field"><label htmlFor="edit-invoice-patient">Patient</label><select id="edit-invoice-patient" name="patientId" className="modal-select" value={editValues.patientId} onChange={(e) => setEditValues({ ...editValues, patientId: e.target.value })}>
+                  <option value="">No linked patient</option>
+                  {editingInvoice.patientId && !patients.some((patient) => patient.id === editingInvoice.patientId) && <option value={editingInvoice.patientId}>{editingInvoice.patientName} (archived)</option>}
+                  {patients.map((patient) => <option key={patient.id} value={patient.id}>{patient.name}</option>)}
+                </select></div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-invoice-no">Invoice number</label><input id="edit-invoice-no" name="invoiceNo" required className="modal-input" value={editValues.invoiceNo} onChange={(e) => setEditValues({ ...editValues, invoiceNo: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-invoice-status">Status</label><select id="edit-invoice-status" name="status" className="modal-select" value={editValues.status} onChange={(e) => setEditValues({ ...editValues, status: e.target.value })}>{[...new Set(["draft", "issued", "partial", "paid", "overdue", editValues.status])].map((status) => <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>)}</select></div>
+                </div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-issue-date">Issue date</label><input id="edit-issue-date" name="issueDate" type="date" required className="modal-input" value={editValues.issueDate} onChange={(e) => setEditValues({ ...editValues, issueDate: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-due-date">Due date</label><input id="edit-due-date" name="dueDate" type="date" required className="modal-input" value={editValues.dueDate} onChange={(e) => setEditValues({ ...editValues, dueDate: e.target.value })} /></div>
+                </div>
+                <div className="modal-grid-3">
+                  <div className="modal-field"><label htmlFor="edit-subtotal">Subtotal (EGP)</label><input id="edit-subtotal" name="subtotal" type="number" min="0" step="0.01" required className="modal-input" value={editValues.subtotal} onChange={(e) => setEditValues({ ...editValues, subtotal: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-discount">Discount (EGP)</label><input id="edit-discount" name="discount" type="number" min="0" step="0.01" required className="modal-input" value={editValues.discount} onChange={(e) => setEditValues({ ...editValues, discount: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-tax">Tax (EGP)</label><input id="edit-tax" name="tax" type="number" min="0" step="0.01" required className="modal-input" value={editValues.tax} onChange={(e) => setEditValues({ ...editValues, tax: e.target.value })} /></div>
+                </div>
+                <div className="modal-info-banner"><span>Total after discount and tax: <strong>EGP {formatCurrency(Math.max(0, (Number(editValues.subtotal) || 0) - (Number(editValues.discount) || 0) + (Number(editValues.tax) || 0)))}</strong></span></div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-insurance">Insurance provider</label><input id="edit-insurance" name="insurance" className="modal-input" value={editValues.insurance} onChange={(e) => setEditValues({ ...editValues, insurance: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-insurance-claim">Insurance claim reference</label><input id="edit-insurance-claim" name="insuranceClaim" className="modal-input" value={editValues.insuranceClaim} onChange={(e) => setEditValues({ ...editValues, insuranceClaim: e.target.value })} /></div>
+                </div>
+                <div className="modal-field"><label htmlFor="edit-invoice-notes">Invoice notes and payment terms</label><textarea id="edit-invoice-notes" name="notes" rows={3} className="modal-textarea" value={editValues.notes} onChange={(e) => setEditValues({ ...editValues, notes: e.target.value })} /></div>
+                {editError && <p role="alert" style={{ color: "var(--clinic-danger, #b42318)", margin: 0 }}>{editError}</p>}
+              </div>
+              <div className="modal-footer"><button type="button" className="button button-secondary" onClick={() => setEditingInvoice(null)} disabled={editSubmitting}>Cancel</button><button type="submit" className="button button-primary" disabled={editSubmitting}>{editSubmitting ? "Saving changes…" : "Save changes"}</button></div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {printingInvoice && createPortal(
+        <div className="invoice-preview-overlay" role="dialog" aria-modal="true" aria-label={`Invoice ${printingInvoice.invoiceNo} preview`} onClick={() => setPrintingInvoice(null)}>
+          <div className="invoice-preview-shell" onClick={(e) => e.stopPropagation()}>
+            <div className="invoice-preview-actions"><button type="button" className="button button-secondary" onClick={() => setPrintingInvoice(null)}>Close</button><button type="button" className="button button-primary" onClick={printInvoiceNow}>Print invoice</button></div>
+        <article className="invoice-print-area" aria-label={`Printable invoice ${printingInvoice.invoiceNo}`}>
+          <header className="invoice-print-header">
+            <div className="invoice-brand"><span className="invoice-brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M12 7c-4 0-7 3.3-7 8 0 6 3.4 8.4 4.2 13.3.6 3.3 1.8 5.7 3.7 5.7 2.3 0 2.8-5.4 7.1-5.4s4.8 5.4 7.1 5.4c1.9 0 3.1-2.4 3.7-5.7C31.6 23.4 35 21 35 15c0-4.7-3-8-7-8-3.7 0-5.7 2.3-10 2.3S15.7 7 12 7Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><path d="M15 16h10M20 11v10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg></span><div><p>{clinicName}</p><h1>Invoice</h1></div></div>
+            <div className="invoice-print-number"><span>Invoice number</span><strong>{printingInvoice.invoiceNo}</strong><span className={`badge badge-inv-${printingInvoice.status}`}>{printingInvoice.status}</span></div>
+          </header>
+          <section className="invoice-print-grid">
+            <div><h2>Bill to</h2><p>{printingInvoice.patientName}</p><p>{printingInvoice.patientId || "Patient record not linked"}</p></div>
+            <div><h2>Invoice dates</h2><p>Issued: {formatDate(printingInvoice.issueDate)}</p><p>Due: {formatDate(printingInvoice.dueDate)}</p></div>
+          </section>
+          <section className="invoice-print-grid">
+            <div><h2>Insurance</h2><p>{printingInvoice.insurance || "No insurance provider"}</p>{printingInvoice.insuranceClaim && <p>Claim reference: {printingInvoice.insuranceClaim}</p>}</div>
+            <div><h2>Payment</h2><p>Method: {printingInvoice.paymentMethod || "—"}</p><p>Paid: EGP {formatCurrency(Number(printingInvoice.paid) || 0)}</p></div>
+          </section>
+          <table className="invoice-print-totals"><tbody>
+            <tr><th>Subtotal</th><td>EGP {formatCurrency(Number(printingInvoice.subtotal) || 0)}</td></tr>
+            <tr><th>Discount</th><td>EGP {formatCurrency(Number(printingInvoice.discount) || 0)}</td></tr>
+            <tr><th>Tax</th><td>EGP {formatCurrency(Number(printingInvoice.tax) || 0)}</td></tr>
+            <tr className="invoice-print-grand-total"><th>Total</th><td>EGP {formatCurrency(Number(printingInvoice.total) || 0)}</td></tr>
+            <tr><th>Balance due</th><td>EGP {formatCurrency(Number(printingInvoice.balance) || 0)}</td></tr>
+          </tbody></table>
+          {printingInvoice.notes && <section className="invoice-print-notes"><h2>Notes and payment terms</h2><p>{printingInvoice.notes}</p></section>}
+          <footer>Printed {new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date())}</footer>
+        </article>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

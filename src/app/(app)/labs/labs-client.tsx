@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { formatCurrency, formatDate } from "@/lib/demo-data";
 import { createLabOrder, advanceLabStatus } from "./actions";
 import { LabOrder } from "@/db";
@@ -28,6 +28,8 @@ export function LabsClient({
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [tableScrollEdge, setTableScrollEdge] = useState<"none" | "end">("none");
+  const tableWrapRef = useRef<HTMLDivElement>(null);
 
   // New order form state
   const [newPatientId, setNewPatientId] = useState(patients[0]?.id || "");
@@ -53,6 +55,27 @@ export function LabsClient({
   const inProgress = useMemo(() => orders.filter((l) => !["delivered", "rejected"].includes(l.status)), [orders]);
   const completed = useMemo(() => orders.filter((l) => ["delivered", "rejected"].includes(l.status)), [orders]);
   const totalSpend = useMemo(() => orders.reduce((s, l) => s + (parseFloat(l.cost) || 0), 0), [orders]);
+
+  useEffect(() => {
+    const wrap = tableWrapRef.current;
+    if (!wrap) return;
+
+    const updateEdge = () => {
+      const hasMoreToRight = wrap.scrollWidth - wrap.clientWidth > 1;
+      setTableScrollEdge(hasMoreToRight && wrap.scrollLeft <= 1 ? "end" : "none");
+    };
+
+    updateEdge();
+    wrap.addEventListener("scroll", updateEdge, { passive: true });
+    const resizeObserver = new ResizeObserver(updateEdge);
+    resizeObserver.observe(wrap);
+    const table = wrap.querySelector("table");
+    if (table) resizeObserver.observe(table);
+    return () => {
+      wrap.removeEventListener("scroll", updateEdge);
+      resizeObserver.disconnect();
+    };
+  }, [filteredOrders.length]);
 
   // Advance lifecycle in DB
   const handleAdvanceStep = async (orderId: string, currentStatus: string) => {
@@ -144,38 +167,37 @@ export function LabsClient({
       </div>
 
       {/* Orders Table */}
-      <div className="table-wrap card">
-        <table className="data-table">
+      <div className="table-wrap card labs-orders-wrap" data-scroll-edge={tableScrollEdge} ref={tableWrapRef} role="region" aria-label="Laboratory work orders table. Scroll horizontally to see all details." tabIndex={0}>
+        <table className="data-table labs-orders-table" aria-label="Laboratory work orders">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Patient</th>
-              <th>Restoration / Work Type</th>
-              <th>Tooth</th>
-              <th>Laboratory</th>
-              <th>Sent date</th>
-              <th>Expected</th>
-              <th>Fee</th>
-              <th>Status (click to advance)</th>
+              <th scope="col">Order ID</th>
+              <th scope="col">Patient</th>
+              <th scope="col">Restoration / Work Type</th>
+              <th scope="col">Tooth</th>
+              <th scope="col">Laboratory</th>
+              <th scope="col">Sent date</th>
+              <th scope="col">Expected</th>
+              <th scope="col">Fee</th>
+              <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.map((o) => {
               return (
                 <tr key={o.id}>
-                  <td style={{ fontWeight: 650 }}>{o.orderNo}</td>
-                  <td style={{ fontWeight: 600 }}>{o.patientName}</td>
-                  <td>{o.workType}</td>
-                  <td>{o.tooth ? <span className="tooth-badge">{o.tooth}</span> : "—"}</td>
-                  <td>{o.labName}</td>
-                  <td>{formatDate(o.sentDate)}</td>
-                  <td>{formatDate(o.expectedDate)}</td>
-                  <td>EGP {formatCurrency(parseFloat(o.cost) || 0)}</td>
-                  <td>
+                  <td data-label="Order ID" className="labs-order-id">{o.orderNo}</td>
+                  <td data-label="Patient" className="labs-order-patient">{o.patientName}</td>
+                  <td data-label="Restoration / work type">{o.workType}</td>
+                  <td data-label="Tooth">{o.tooth ? <span className="tooth-badge">{o.tooth}</span> : "—"}</td>
+                  <td data-label="Laboratory">{o.labName}</td>
+                  <td data-label="Sent date">{formatDate(o.sentDate)}</td>
+                  <td data-label="Expected">{formatDate(o.expectedDate)}</td>
+                  <td data-label="Fee" className="labs-order-fee">EGP {formatCurrency(parseFloat(o.cost) || 0)}</td>
+                  <td data-label="Status">
                     <button
                       type="button"
-                      className={`badge badge-${o.status}`}
-                      style={{ cursor: "pointer", border: "1px solid" }}
+                      className={`badge badge-${o.status} labs-order-status`}
                       onClick={() => handleAdvanceStep(o.id, o.status)}
                       title="Click to advance lifecycle"
                     >

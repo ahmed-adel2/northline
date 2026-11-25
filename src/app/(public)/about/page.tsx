@@ -77,9 +77,6 @@ export default function About() {
             <p className="section-label">Our principles</p>
             <h2 id="values-title">Four commitments that guide every visit.</h2>
           </div>
-          <p className="section-description">
-            These are example principles. They show how this fictional clinic starts, explains, plans, and follows through.
-          </p>
         </div>
         <div className="values-grid">
           {values.map((value, index) => (
@@ -99,9 +96,7 @@ export default function About() {
               <p className="section-label">Our story</p>
               <h2 id="clinic-history-title">More than a list of services. A way of caring.</h2>
             </div>
-            <p className="section-description">
-              The fictional history of Northline—and the choices that make its approach distinct.
-            </p>
+
           </div>
           <div className="clinic-story-prologue">
             <p className="clinic-story-kicker">The Northline story</p>

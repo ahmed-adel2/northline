@@ -1589,7 +1589,7 @@
 }
 
 .filter-search {
-    height: 2.4rem;
+    min-height: 2.4rem;
     padding: 0 0.75rem;
     border: 1px solid var(--clinic-hairline);
     border-radius: var(--clinic-radius-sm);
@@ -2623,40 +2623,198 @@
 }
 
 /* -- Analytics ---------------------------------------------- */
+.analytics-wrap {
+    transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.analytics-wrap.analytics-loading {
+    opacity: 0.65;
+}
+
+.analytics-range-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.analytics-range-pill {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--clinic-hairline);
+    background: var(--clinic-surface);
+    color: var(--clinic-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 120ms ease;
+}
+
+.analytics-range-pill:hover:not(:disabled) {
+    border-color: var(--clinic-teal);
+    color: var(--clinic-ink);
+}
+
+.analytics-range-pill:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.analytics-range-pill.is-active {
+    background: var(--clinic-teal);
+    border-color: var(--clinic-teal);
+    color: #fff;
+}
+
+.analytics-chart-card {
+    grid-column: span 2;
+}
+
+.analytics-table-card {
+    grid-column: span 3;
+    min-width: 0;
+    position: relative;
+}
+
+.analytics-table-card .table-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background:
+        linear-gradient(to right, var(--clinic-surface, #fff) 30%, rgba(255, 255, 255, 0)),
+        linear-gradient(to right, rgba(255, 255, 255, 0), var(--clinic-surface, #fff) 70%) 100% 0,
+        radial-gradient(farthest-side at 0 50%, rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0)),
+        radial-gradient(farthest-side at 100% 50%, rgba(15, 23, 42, 0.26), rgba(15, 23, 42, 0)) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 56px 100%, 56px 100%, 26px 100%, 26px 100%;
+    background-attachment: local, local, scroll, scroll;
+}
+
+.analytics-table-card .data-table th,
+.analytics-table-card .data-table td {
+    white-space: nowrap;
+}
+
 .chart-wrap {
     padding: 1.25rem;
+}
+
+.chart-inspector {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background: var(--clinic-bg-soft, rgba(15, 23, 42, 0.03));
+    border: 1px solid var(--clinic-hairline-soft, var(--clinic-hairline));
+    font-size: 0.78rem;
+}
+
+.chart-inspector-period {
+    font-weight: 700;
+    color: var(--clinic-ink);
+}
+
+.chart-inspector-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    color: var(--clinic-muted);
+    font-variant-numeric: tabular-nums;
 }
 
 .bar-chart {
     display: flex;
     align-items: flex-end;
     gap: 0.5rem;
-    height: 10rem;
+    height: 12.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
 }
 
 .bar-group {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
     gap: 0.25rem;
-    flex: 1;
+    flex: 1 0 3.25rem;
+    min-width: 3.25rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    background: transparent;
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease;
+}
+
+.bar-group:hover {
+    background: var(--clinic-bg-soft, rgba(15, 23, 42, 0.03));
+}
+
+.bar-group.is-selected {
+    background: var(--clinic-bg-soft, rgba(13, 148, 136, 0.08));
+    border-color: rgba(13, 148, 136, 0.35);
+}
+
+.bar-group:focus-visible {
+    outline: 2px solid var(--clinic-teal);
+    outline-offset: 2px;
 }
 
 .bar-pair {
     display: flex;
-    gap: 2px;
+    gap: 3px;
     align-items: flex-end;
 }
 
+@keyframes barGrow {
+    from {
+        transform: scaleY(0);
+        opacity: 0.4;
+    }
+    to {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
 .bar {
-    width: 1.25rem;
+    width: 1.15rem;
     border-radius: 3px 3px 0 0;
+    transform-origin: bottom;
+    animation: barGrow 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
     transition: opacity 140ms ease;
     min-height: 2px;
 }
 
 .bar:hover {
-    opacity: 0.8;
+    opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bar {
+        animation: none;
+    }
+    .analytics-range-pill,
+    .analytics-wrap {
+        transition: none;
+    }
 }
 
 .bar-revenue {
@@ -2668,16 +2826,31 @@
 }
 
 .bar-label {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
     color: var(--clinic-muted);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.bar-value {
+    font-size: 0.62rem;
+    color: var(--clinic-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 .chart-legend {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-top: 0.75rem;
     align-items: center;
+}
+
+.legend-hint {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: var(--clinic-muted);
 }
 
 /* -- Team --------------------------------------------------- */
@@ -2991,6 +3164,10 @@
     .dashboard-grid-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .analytics-table-card {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (max-width: 1100px) {
@@ -3004,6 +3181,11 @@
 
     .dashboard-grid-3 {
         grid-template-columns: 1fr;
+    }
+
+    .analytics-chart-card,
+    .analytics-table-card {
+        grid-column: 1 / -1;
     }
 
     .settings-grid {
@@ -3040,6 +3222,7 @@
     .filter-search {
         width: 100%;
         min-width: 0;
+        height: 2.4rem
     }
 
     .action-grid {

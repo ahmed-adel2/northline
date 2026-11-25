@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { formatCurrency } from "@/lib/demo-data";
 import { createTreatmentPlan, togglePlanItemStatus, recordPlanPayment, PlanItem } from "./actions";
 import { TreatmentPlan } from "@/db";
@@ -16,6 +16,8 @@ function ArrowUpRight() {
 export interface PatientOption {
   id: string;
   name: string;
+  patientNo: number;
+  phone: string;
 }
 
 export interface DoctorOption {
@@ -37,6 +39,13 @@ export function TreatmentPlansClient({
   const [paymentPlan, setPaymentPlan] = useState<TreatmentPlan | null>(null);
   const [paymentAmount, setPaymentAmount] = useState("1000");
   const [submitting, setSubmitting] = useState(false);
+  const [patientSearch, setPatientSearch] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState<PatientOption | null>(null);
+  const [expandedPlanIds, setExpandedPlanIds] = useState<Record<string, boolean>>({});
+
+  const toggleExpandPlan = (planId: string) => {
+    setExpandedPlanIds((prev) => ({ ...prev, [planId]: !prev[planId] }));
+  };
 
   // New plan state
   const [newPatientId, setNewPatientId] = useState(patients[0]?.id || "");
@@ -45,6 +54,31 @@ export function TreatmentPlansClient({
   const [newTooth, setNewTooth] = useState("16");
   const [newUnitPrice, setNewUnitPrice] = useState("3500");
   const [newNotes, setNewNotes] = useState("");
+
+  const matchingPatients = useMemo(() => {
+    const query = patientSearch.trim().toLowerCase();
+    if (!query || selectedPatient) return [];
+
+    return patients.filter((patient) => {
+      const patientCode = `P-${String(patient.patientNo).padStart(3, "0")}`;
+      return (
+        patient.name.toLowerCase().includes(query) ||
+        patient.phone.toLowerCase().includes(query) ||
+        patientCode.toLowerCase().includes(query) ||
+        String(patient.patientNo).includes(query)
+      );
+    });
+  }, [patientSearch, patients, selectedPatient]);
+
+  const visiblePlans = useMemo(() => {
+    if (!selectedPatient) return plans;
+
+    return plans.filter(
+      (plan) =>
+        plan.patientId === selectedPatient.id ||
+        (!plan.patientId && plan.patientName.toLowerCase() === selectedPatient.name.toLowerCase())
+    );
+  }, [plans, selectedPatient]);
 
   // Toggle procedure item status in DB
   const handleToggleItemStatus = async (planId: string, itemIdx: number) => {
@@ -127,95 +161,243 @@ export function TreatmentPlansClient({
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-        {plans.map((plan) => {
-          const totalNum = parseFloat(plan.totalAmount) || 0;
-          const paidNum = parseFloat(plan.paidAmount) || 0;
-          const pct = totalNum > 0 ? Math.round((paidNum / totalNum) * 100) : 0;
-          const items = (plan.items as PlanItem[]) || [];
+      <section className="card treatment-patient-search" aria-labelledby="treatment-patient-search-title">
+        <div className="treatment-patient-search-heading">
+          <div>
+            <h2 id="treatment-patient-search-title">Find a patient’s treatment plans</h2>
+            <p>Search active patient records by name, patient number, or phone.</p>
+          </div>
+          {selectedPatient && (
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => {
+                setSelectedPatient(null);
+                setPatientSearch("");
+              }}
+            >
+              View all plans
+            </button>
+          )}
+        </div>
 
-          return (
-            <div key={plan.id} className="card treatment-plan-card">
-              <div className="card-header">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-                  <span className="patient-id">{plan.planNo}</span>
-                  <span className="patient-name" style={{ fontSize: "1rem", fontWeight: 700 }}>
-                    {plan.patientName}
-                  </span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: "0.82rem", color: "var(--clinic-muted)" }}>{plan.doctorName}</span>
-                  <span className={`badge badge-plan-${plan.status}`}>{plan.status}</span>
-                  {paidNum < totalNum && (
+        <div className="treatment-patient-search-field">
+          <label htmlFor="treatment-patient-search-input">Search patient records</label>
+          <input
+            id="treatment-patient-search-input"
+            type="search"
+            className="filter-search"
+            value={patientSearch}
+            onChange={(event) => {
+              setPatientSearch(event.target.value);
+              setSelectedPatient(null);
+            }}
+            placeholder="Name, patient number, or phone"
+            autoComplete="off"
+            aria-describedby="treatment-patient-search-help"
+          />
+          <p id="treatment-patient-search-help">Choose a patient to see their saved treatment plans.</p>
+        </div>
+
+        {selectedPatient ? (
+          <div className="treatment-patient-selection" aria-live="polite">
+            <div>
+              <strong>{selectedPatient.name}</strong>
+              <span>
+                P-{String(selectedPatient.patientNo).padStart(3, "0")} · {selectedPatient.phone}
+              </span>
+            </div>
+            <span className="treatment-patient-plan-count">
+              {visiblePlans.length} {visiblePlans.length === 1 ? "plan" : "plans"}
+            </span>
+          </div>
+        ) : patientSearch.trim() ? (
+          <>
+            <p className="treatment-patient-search-status" aria-live="polite">
+              {matchingPatients.length === 0
+                ? "No active patients match that search. Try another name, number, or phone."
+                : `${matchingPatients.length > 8 ? "Showing the first 8 of " : ""}${matchingPatients.length} ${matchingPatients.length === 1 ? "patient" : "patients"}. Select one to view their plans.`}
+            </p>
+            {matchingPatients.length > 0 && (
+              <ul className="treatment-patient-results" aria-label="Matching patients">
+                {matchingPatients.slice(0, 8).map((patient) => (
+                  <li key={patient.id}>
                     <button
                       type="button"
-                      className="button button-secondary"
-                      style={{ fontSize: "0.75rem", padding: "0.3rem 0.65rem", minHeight: "32px" }}
+                      className="treatment-patient-result"
                       onClick={() => {
-                        setPaymentPlan(plan);
-                        setPaymentAmount(String(totalNum - paidNum));
+                        setSelectedPatient(patient);
+                        setPatientSearch(patient.name);
+                        setNewPatientId(patient.id);
                       }}
                     >
-                      Record payment
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="plan-body">
-                {/* Items table */}
-                <table className="plan-items-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: "65px" }}>Tooth</th>
-                      <th>Procedure</th>
-                      <th>Qty</th>
-                      <th>Unit price</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.tooth ? <span className="tooth-badge">{item.tooth}</span> : "—"}</td>
-                        <td style={{ fontWeight: 550 }}>{item.procedure}</td>
-                        <td>{item.quantity}</td>
-                        <td>EGP {formatCurrency(item.unitPrice)}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className={`badge badge-${item.status}`}
-                            style={{ cursor: "pointer", border: "1px solid" }}
-                            onClick={() => handleToggleItemStatus(plan.id, idx)}
-                            title="Click to advance status"
-                          >
-                            {item.status} ↺
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* Financial consent strip */}
-                <div className="plan-progress">
-                  <div className="plan-progress-wrap">
-                    <div className="progress-bar-label">
-                      <span style={{ fontWeight: 650, color: "var(--clinic-ink)" }}>Payment progress</span>
-                      <span style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 600 }}>
-                        {pct}% (EGP {formatCurrency(paidNum)} of EGP {formatCurrency(totalNum)})
+                      <span className="patient-avatar-mini" aria-hidden="true">
+                        {patient.name.slice(0, 2).toUpperCase()}
                       </span>
+                      <span className="treatment-patient-result-copy">
+                        <strong>{patient.name}</strong>
+                        <span>
+                          P-{String(patient.patientNo).padStart(3, "0")} · {patient.phone}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        ) : null}
+      </section>
+      <div>
+        {visiblePlans.length === 0 ? (
+          <div className="treatment-plan-empty" aria-live="polite">
+            <p>
+              {selectedPatient
+                ? `No treatment plans are saved for ${selectedPatient.name} yet.`
+                : "No treatment plans are saved yet."}
+            </p>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={() => {
+                if (selectedPatient) setNewPatientId(selectedPatient.id);
+                setIsNewPlanModalOpen(true);
+              }}
+            >
+              {selectedPatient ? `Create a plan for ${selectedPatient.name}` : "Create the first plan"}
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            {visiblePlans.map((plan) => {
+              const totalNum = parseFloat(plan.totalAmount) || 0;
+              const paidNum = parseFloat(plan.paidAmount) || 0;
+              const pct = totalNum > 0 ? Math.round((paidNum / totalNum) * 100) : 0;
+              const items = (plan.items as PlanItem[]) || [];
+              const isExpanded = !!expandedPlanIds[plan.id];
+
+              return (
+                <div
+                  key={plan.id}
+                  className={`card treatment-plan-card ${isExpanded ? "treatment-plan-card-active" : ""}`}
+                  style={{ padding: "1.5rem 1.75rem" }}
+                >
+                  <div
+                    className="treatment-plan-summary"
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "1.5rem",
+                    }}
+                  >
+                    <div className="treatment-plan-meta" style={{ flex: "1 1 260px", minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                        <span className="patient-id">{plan.planNo}</span>
+                        <span className={`badge badge-plan-${plan.status}`}>{plan.status}</span>
+                      </div>
+                      <div style={{ fontSize: "1.1rem", fontWeight: 700, marginTop: "0.45rem", color: "var(--clinic-ink)" }}>
+                        {plan.patientName}
+                      </div>
+                      <div style={{ fontSize: "0.85rem", color: "var(--clinic-muted)", marginTop: "0.2rem" }}>
+                        {plan.doctorName} · {items.length} {items.length === 1 ? "procedure" : "procedures"}
+                        {items[0]?.procedure ? ` (${items[0].procedure}${items.length > 1 ? ` +${items.length - 1} more` : ""})` : ""}
+                      </div>
                     </div>
-                    <div className="progress-bar-track">
-                      <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+
+                    <div className="treatment-plan-payment" style={{ flex: "1 1 220px", maxWidth: "360px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "0.4rem", gap: "0.75rem" }}>
+                        <span style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 700, color: "var(--clinic-ink)" }}>
+                          {pct}% paid
+                        </span>
+                        <span style={{ color: "var(--clinic-muted)", fontFamily: "var(--font-geist-mono)" }}>
+                          EGP {formatCurrency(paidNum)} / {formatCurrency(totalNum)}
+                        </span>
+                      </div>
+                      <div className="progress-bar-track" style={{ height: "8px" }}>
+                        <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="treatment-plan-actions" style={{ display: "flex", gap: "0.65rem", alignItems: "center", flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        className={"button button-primary"}
+                        style={{ fontSize: "0.8rem", padding: "0.45rem 0.9rem", minHeight: "38px" }}
+                        onClick={() => toggleExpandPlan(plan.id)}
+                        aria-expanded={isExpanded}
+                      >
+                        {isExpanded ? "Hide procedures" : `View procedures (${items.length})`}
+                      </button>
+                      {paidNum < totalNum && (
+                        <button
+                          type="button"
+                          className="button button-secondary"
+                          style={{ fontSize: "0.8rem", padding: "0.45rem 0.9rem", minHeight: "38px" }}
+                          onClick={() => {
+                            setPaymentPlan(plan);
+                            setPaymentAmount(String(totalNum - paidNum));
+                          }}
+                        >
+                          Record payment
+                        </button>
+                      )}
                     </div>
                   </div>
-                  {plan.notes && <p className="plan-notes" style={{ margin: "0.6rem 0 0", fontSize: "0.8rem", color: "var(--clinic-muted)" }}>{plan.notes}</p>}
+
+                  {isExpanded && (
+                    <div className="treatment-details-panel" style={{ marginTop: "1.25rem", padding: "1.25rem 1.5rem" }}>
+                      <div className="treatment-details-label">Staged Procedures</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                        {items.map((item, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              gap: "0.75rem",
+                              flexWrap: "wrap",
+                              padding: "0.5rem 0.75rem",
+                              borderRadius: "8px",
+                              background: "#f8fafc",
+                              border: "1px solid #e2e8f0",
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0, flex: "1 1 200px" }}>
+                              {item.tooth ? <span className="tooth-badge">{item.tooth}</span> : <span style={{ color: "var(--clinic-muted)", fontSize: "0.8rem", width: "26px", textAlign: "center" }}>—</span>}
+                              <span style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--clinic-ink)" }}>{item.procedure}</span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexShrink: 0 }}>
+                              <span style={{ fontSize: "0.82rem", color: "var(--clinic-muted)", fontFamily: "var(--font-geist-mono)", fontVariantNumeric: "tabular-nums" }}>
+                                {item.quantity} × EGP {formatCurrency(item.unitPrice)}
+                              </span>
+                              <button
+                                type="button"
+                                className={`badge badge-${item.status}`}
+                                style={{ cursor: "pointer", border: "1px solid" }}
+                                onClick={() => handleToggleItemStatus(plan.id, idx)}
+                                title="Click to advance status"
+                              >
+                                {item.status} ↺
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {plan.notes && (
+                        <div className="treatment-details-notes">
+                          <strong>Clinical Notes:</strong> {plan.notes}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* New Plan Modal */}

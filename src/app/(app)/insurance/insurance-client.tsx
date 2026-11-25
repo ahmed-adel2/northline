@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { formatCurrency, formatDate } from "@/lib/demo-data";
-import { createInsuranceClaim, approveInsuranceClaim } from "./actions";
+import { createInsuranceClaim, approveInsuranceClaim, updateInsuranceClaim } from "./actions";
 import { InsuranceClaim } from "@/db";
 
 function ArrowUpRight() {
@@ -27,6 +27,13 @@ export function InsuranceClient({
   const [statusFilter, setStatusFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingClaim, setEditingClaim] = useState<InsuranceClaim | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editValues, setEditValues] = useState({
+    patientId: "", claimNo: "", insurance: "", memberId: "", submittedDate: "",
+    amount: "", approvedAmount: "", status: "submitted", rejectionReason: "", notes: "", invoiceId: "",
+  });
 
   // New claim form state
   const [newPatientId, setNewPatientId] = useState(patients[0]?.id || "");
@@ -99,6 +106,44 @@ export function InsuranceClient({
     }
   };
 
+  const openEditClaim = (claim: InsuranceClaim) => {
+    setEditingClaim(claim);
+    setEditError("");
+    setEditValues({
+      patientId: claim.patientId ?? "",
+      claimNo: claim.claimNo,
+      insurance: claim.insurance,
+      memberId: claim.memberId ?? "",
+      submittedDate: claim.submittedDate ?? "",
+      amount: claim.amount,
+      approvedAmount: claim.approvedAmount ?? "",
+      status: claim.status,
+      rejectionReason: claim.rejectionReason ?? "",
+      notes: claim.notes ?? "",
+      invoiceId: claim.invoiceId ?? "",
+    });
+  };
+
+  const handleUpdateClaim = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingClaim) return;
+    setEditSubmitting(true);
+    setEditError("");
+    try {
+      const result = await updateInsuranceClaim(editingClaim.id, new FormData(e.currentTarget));
+      if (!result.ok || !result.data) {
+        setEditError(result.error || "The claim could not be saved. Check the details and try again.");
+        return;
+      }
+      setClaims((current) => current.map((claim) => claim.id === editingClaim.id ? result.data as InsuranceClaim : claim));
+      setEditingClaim(null);
+    } catch {
+      setEditError("The claim could not be saved. Check your connection and try again.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   return (
     <div className="insurance-wrap">
       <div className="page-header">
@@ -158,8 +203,8 @@ export function InsuranceClient({
       </div>
 
       {/* Table */}
-      <div className="table-wrap card">
-        <table className="data-table">
+      <div className="table-wrap card insurance-table-wrap">
+        <table className="data-table insurance-data-table">
           <thead>
             <tr>
               <th>Claim ID</th>
@@ -176,26 +221,33 @@ export function InsuranceClient({
           <tbody>
             {filteredClaims.map((c) => (
               <tr key={c.id}>
-                <td style={{ fontWeight: 650, fontFamily: "var(--font-geist-mono)" }}>{c.claimNo}</td>
-                <td style={{ fontWeight: 600 }}>{c.patientName}</td>
-                <td>
+                <td data-label="Claim ID" style={{ fontWeight: 650, fontFamily: "var(--font-geist-mono)" }}>{c.claimNo}</td>
+                <td data-label="Patient" style={{ fontWeight: 600 }}>{c.patientName}</td>
+                <td data-label="Insurance Provider">
                   <span className="insurance-pill">{c.insurance}</span>
                 </td>
-                <td style={{ fontFamily: "var(--font-geist-mono)" }}>{c.memberId || "—"}</td>
-                <td>{formatDate(c.submittedDate || "")}</td>
-                <td style={{ fontFamily: "var(--font-geist-mono)" }}>EGP {formatCurrency(parseFloat(c.amount) || 0)}</td>
-                <td style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 600, color: "var(--clinic-teal)" }}>
+                <td data-label="Policy / Member ID" style={{ fontFamily: "var(--font-geist-mono)" }}>{c.memberId || "—"}</td>
+                <td data-label="Submitted">{formatDate(c.submittedDate || "")}</td>
+                <td data-label="Claimed (EGP)" style={{ fontFamily: "var(--font-geist-mono)" }}>EGP {formatCurrency(parseFloat(c.amount) || 0)}</td>
+                <td data-label="Approved (EGP)" style={{ fontFamily: "var(--font-geist-mono)", fontWeight: 600, color: "var(--clinic-teal)" }}>
                   {c.approvedAmount ? `EGP ${formatCurrency(parseFloat(c.approvedAmount) || 0)}` : "—"}
                 </td>
-                <td>
+                <td data-label="Status">
                   <span className={`badge badge-claim-${c.status}`}>{c.status}</span>
                 </td>
-                <td>
+                <td data-label="Action">
+                  <button
+                    type="button"
+                    className="button button-secondary mt-3"
+                    onClick={() => openEditClaim(c)}
+                    aria-label={`Edit claim ${c.claimNo}`}
+                  >
+                    Edit
+                  </button>
                   {c.status !== "approved" && (
                     <button
                       type="button"
-                      className="button button-secondary"
-                      style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", minHeight: "28px" }}
+                      className="button button-primary mt-3"
                       onClick={() => handleApproveClaim(c.id)}
                     >
                       Approve
@@ -314,6 +366,60 @@ export function InsuranceClient({
                 <button type="submit" disabled={submitting} className="button button-primary">
                   {submitting ? "Saving to database..." : "Submit Claim"}
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingClaim && (
+        <div className="modal-backdrop" onClick={() => !editSubmitting && setEditingClaim(null)}>
+          <div className="modal-card modal-card-lg" role="dialog" aria-modal="true" aria-labelledby="edit-claim-title" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-strip">
+              <div className="modal-header-titles">
+                <span className="modal-category-badge">Claim record</span>
+                <h2 id="edit-claim-title">Edit insurance claim</h2>
+                <p>Update the submitted details, insurer response, or claim status.</p>
+              </div>
+              <button type="button" className="modal-close-btn" onClick={() => setEditingClaim(null)} aria-label="Close dialog" disabled={editSubmitting}>×</button>
+            </div>
+            <form onSubmit={handleUpdateClaim} style={{ display: "contents" }}>
+              <div className="modal-body">
+                <div className="modal-field">
+                  <label htmlFor="edit-patient">Patient</label>
+                  <select id="edit-patient" name="patientId" className="modal-select" value={editValues.patientId} onChange={(e) => setEditValues({ ...editValues, patientId: e.target.value })}>
+                    <option value="">No linked patient</option>
+                    {editingClaim.patientId && !patients.some((patient) => patient.id === editingClaim.patientId) && (
+                      <option value={editingClaim.patientId}>{editingClaim.patientName} (archived)</option>
+                    )}
+                    {patients.map((patient) => <option key={patient.id} value={patient.id}>{patient.name}</option>)}
+                  </select>
+                </div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-claim-no">Claim number</label><input id="edit-claim-no" name="claimNo" required className="modal-input" value={editValues.claimNo} onChange={(e) => setEditValues({ ...editValues, claimNo: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-insurance">Insurance provider</label><input id="edit-insurance" name="insurance" required className="modal-input" value={editValues.insurance} onChange={(e) => setEditValues({ ...editValues, insurance: e.target.value })} /></div>
+                </div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-member-id">Policy / member ID</label><input id="edit-member-id" name="memberId" className="modal-input" value={editValues.memberId} onChange={(e) => setEditValues({ ...editValues, memberId: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-submitted-date">Submitted date</label><input id="edit-submitted-date" name="submittedDate" type="date" className="modal-input" value={editValues.submittedDate} onChange={(e) => setEditValues({ ...editValues, submittedDate: e.target.value })} /></div>
+                </div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-amount">Claimed amount (EGP)</label><input id="edit-amount" name="amount" type="number" min="0" step="0.01" required className="modal-input" value={editValues.amount} onChange={(e) => setEditValues({ ...editValues, amount: e.target.value })} /></div>
+                  <div className="modal-field"><label htmlFor="edit-approved-amount">Approved amount (EGP)</label><input id="edit-approved-amount" name="approvedAmount" type="number" min="0" step="0.01" className="modal-input" value={editValues.approvedAmount} onChange={(e) => setEditValues({ ...editValues, approvedAmount: e.target.value })} /></div>
+                </div>
+                <div className="modal-grid-2">
+                  <div className="modal-field"><label htmlFor="edit-status">Status</label><select id="edit-status" name="status" className="modal-select" value={editValues.status} onChange={(e) => setEditValues({ ...editValues, status: e.target.value })}>
+                    {[...new Set(["draft", "submitted", "pending", "approved", "partial", "rejected", editValues.status])].map((status) => <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>)}
+                  </select></div>
+                  <div className="modal-field"><label htmlFor="edit-invoice-id">Linked invoice ID</label><input id="edit-invoice-id" name="invoiceId" className="modal-input" value={editValues.invoiceId} onChange={(e) => setEditValues({ ...editValues, invoiceId: e.target.value })} /></div>
+                </div>
+                <div className="modal-field"><label htmlFor="edit-rejection-reason">Rejection reason</label><textarea id="edit-rejection-reason" name="rejectionReason" rows={2} className="modal-textarea" value={editValues.rejectionReason} onChange={(e) => setEditValues({ ...editValues, rejectionReason: e.target.value })} /></div>
+                <div className="modal-field"><label htmlFor="edit-notes">Coverage and claim notes</label><textarea id="edit-notes" name="notes" rows={3} className="modal-textarea" value={editValues.notes} onChange={(e) => setEditValues({ ...editValues, notes: e.target.value })} /></div>
+                {editError && <p role="alert" style={{ color: "var(--clinic-danger, #b42318)", margin: 0 }}>{editError}</p>}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="button button-secondary" onClick={() => setEditingClaim(null)} disabled={editSubmitting}>Cancel</button>
+                <button type="submit" className="button button-primary" disabled={editSubmitting}>{editSubmitting ? "Saving changes…" : "Save changes"}</button>
               </div>
             </form>
           </div>

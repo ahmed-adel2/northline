@@ -161,6 +161,19 @@
   border-bottom: 1px solid var(--clinic-hairline-soft);
 }
 
+.sidebar.collapsed .sidebar-brand {
+  height: auto;
+  min-height: 6rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0;
+}
+
+.sidebar.collapsed .sidebar-brand .brand-link {
+  justify-content: center;
+}
+
 .brand-link {
   display: flex;
   align-items: center;
@@ -212,8 +225,8 @@
 }
 
 .sidebar-toggle {
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border: 1px solid var(--clinic-hairline);
   background: var(--clinic-ground);
   color: var(--clinic-muted);
@@ -933,8 +946,9 @@
 
 .m-row-main {
   display: flex;
-  align-items: center;
-  gap: 0.85rem;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;
 }
 
 .m-row-time-tag {
@@ -2278,6 +2292,69 @@
   border: 1px solid var(--clinic-hairline-soft);
 }
 
+.treatment-plan-card .plan-items-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--clinic-ink);
+  font-size: 0.92rem;
+}
+
+.treatment-plan-card .plan-items-table th {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--clinic-hairline);
+  color: var(--clinic-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.treatment-plan-card .plan-items-table td {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--clinic-hairline-soft);
+  line-height: 1.45;
+  vertical-align: middle;
+}
+
+.treatment-plan-card .plan-items-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.treatment-plan-card .plan-items-table td:nth-child(3) {
+  text-align: center;
+}
+
+.treatment-plan-card .plan-items-table td:nth-child(4) {
+  white-space: nowrap;
+}
+
+.treatment-plan-card .plan-progress {
+  padding: 1rem 1.1rem;
+}
+
+.treatment-plan-card .progress-bar-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  line-height: 1.5;
+}
+
+.treatment-plan-card .progress-bar-track {
+  width: 100%;
+  height: 0.5rem;
+  margin-top: 0.65rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--clinic-hairline);
+}
+
+.treatment-plan-card .progress-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--clinic-teal);
+}
 /* ==========================================================
    §16  QR CODES & SELF CHECK-IN
    ========================================================== */
@@ -2414,6 +2491,106 @@
 
 .qr-patient-actions {
   flex-shrink: 0;
+}
+
+.settings-hours-section {
+  grid-column: 1 / -1;
+}
+
+.settings-hours-form .hours-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) auto minmax(9rem, 1fr) minmax(9rem, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0;
+}
+
+.hours-open-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  color: var(--clinic-muted);
+  cursor: pointer;
+}
+
+.hours-open-control input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--clinic-teal);
+}
+
+.hours-time-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--clinic-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.hours-time-field input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 0.65rem;
+  border: 1px solid var(--clinic-hairline);
+  border-radius: var(--radius-md);
+  background: var(--clinic-ground);
+  color: var(--clinic-ink);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.hours-time-field input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hours-time-field input:focus-visible,
+.hours-open-control input:focus-visible,
+.toggle-switch:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--clinic-teal) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.toggle-switch:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.settings-save-error {
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--clinic-danger) 30%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--clinic-danger) 7%, white);
+  color: var(--clinic-danger);
+  font-size: 0.88rem;
+}
+
+.hours-summary {
+  max-width: 35ch;
+  line-height: 1.8;
+}
+
+@media (max-width: 767px) {
+  .settings-hours-form .hours-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.35rem 1rem;
+    padding: 0.9rem 0;
+  }
+
+  .hours-time-field input {
+    height: 42px;
+  }
+
+  .settings-hours-form .settings-actions .button {
+    width: 100%;
+    min-height: 44px;
+  }
 }
 
 /* ==========================================================
@@ -2984,4 +3161,208 @@
   padding: 0.55rem 1.25rem;
   font-weight: 650;
   letter-spacing: -0.01em;
+}
+
+.treatment-patient-search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.treatment-patient-search-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.treatment-patient-search-heading h2 {
+  margin: 0;
+  color: var(--clinic-ink);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.treatment-patient-search-heading p,
+.treatment-patient-search-field p {
+  margin: 0.25rem 0 0;
+  color: var(--clinic-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.treatment-patient-search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.treatment-patient-search-field label {
+  color: var(--clinic-ink);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.treatment-patient-search-field .filter-search {
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  border: 1px solid rgba(0, 154, 0, 0.312);
+}
+
+.treatment-patient-search-status {
+  margin: 0;
+  color: var(--clinic-muted);
+  font-size: 0.8rem;
+}
+
+.treatment-patient-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.45rem;
+  max-height: 16rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--clinic-hairline) transparent;
+}
+
+.treatment-patient-result {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--clinic-hairline-soft);
+  border-radius: var(--radius-sm);
+  background: var(--clinic-surface);
+  color: var(--clinic-ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--anim-fast), border-color var(--anim-fast);
+}
+
+.treatment-patient-result:hover,
+.treatment-patient-result:focus-visible {
+  border-color: var(--clinic-teal);
+  background: var(--clinic-teal-tint);
+}
+
+.treatment-patient-result-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.treatment-patient-result-copy strong {
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+}
+
+.treatment-patient-result-copy > span {
+  color: var(--clinic-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.treatment-patient-selection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--clinic-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--clinic-teal-tint);
+}
+
+.treatment-patient-selection > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.treatment-patient-selection strong {
+  color: var(--clinic-ink);
+  overflow-wrap: anywhere;
+}
+
+.treatment-patient-selection > div > span,
+.treatment-patient-plan-count {
+  color: var(--clinic-muted);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.treatment-plan-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  padding: 1.25rem;
+  border: 1px dashed var(--clinic-hairline);
+  border-radius: var(--radius-md);
+  background: var(--clinic-surface);
+}
+
+.treatment-plan-empty p {
+  margin: 0;
+  color: var(--clinic-muted);
+  font-size: 0.9rem;
+}
+
+.labs-orders-wrap {
+  border-color: var(--clinic-hairline);
+  background: var(--clinic-surface);
+}
+
+.labs-orders-table {
+  min-width: 58rem;
+}
+
+.labs-orders-table th {
+  background: #f2f7f7;
+  padding-top: 0.95rem;
+  padding-bottom: 0.95rem;
+}
+
+.labs-orders-table td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.labs-orders-table tbody tr:nth-child(even) {
+  background: #f8fbfb;
+}
+
+.labs-orders-table tbody tr:hover {
+  background: #edf6f5;
+}
+
+.labs-order-id {
+  color: var(--clinic-teal-deep);
+  font-family: var(--font-geist-mono);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.labs-order-patient {
+  font-weight: 650;
+}
+
+.labs-order-fee {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.labs-order-status {
+  min-height: 2rem;
+  cursor: pointer;
 }

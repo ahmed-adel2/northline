@@ -1,0 +1,101 @@
+
+/* Treatment Plans responsive tabular / mobile views */
+.treatment-row-active {
+  background: rgba(8, 127, 128, 0.06);
+  box-shadow: inset 3px 0 0 #087f80;
+}
+
+.treatment-row-details > td {
+  background: rgba(8, 127, 128, 0.03);
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.treatment-details-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #087f80;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.25rem;
+  animation: treatmentReveal 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes treatmentReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.treatment-details-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #087f80;
+  margin-bottom: 0.75rem;
+}
+
+.treatment-details-notes {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.82rem;
+  color: var(--clinic-muted);
+}
+
+/* Treatment Plans unified responsive card-table layout */
+.treatment-plan-card {
+  padding: 1.5rem 1.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.treatment-plan-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+}
+
+.treatment-plan-card-active {
+  border-color: #087f80;
+  box-shadow: 0 8px 24px rgba(8, 127, 128, 0.1);
+}
+
+.treatment-plan-card-active:hover {
+  border-color: #087f80;
+}
+
+.treatment-plan-summary {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(200px, 1fr) auto;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.treatment-plan-actions {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .treatment-plan-card {
+    padding: 1.25rem;
+  }
+  .treatment-plan-summary {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+  .treatment-plan-actions {
+    justify-content: stretch;
+  }
+  .treatment-plan-actions .button {
+    flex: 1;
+    min-height: 44px;
+  }
+}

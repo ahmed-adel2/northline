@@ -144,6 +144,8 @@ a {
   font-size: 0.93rem;
   font-weight: 650;
   letter-spacing: -0.025em;
+  color: var(--clinic-teal-deep);
+
 }
 
 .brand-type>span {
@@ -621,26 +623,19 @@ a {
 .section-intro {
   display: flex;
   align-items: end;
-  justify-content: space-between;
-  gap: 3rem;
+  gap: 2rem;
   margin-bottom: 2.8rem;
+  width: 100%;
 }
 
 .section-intro h2,
 .approach-heading h2,
 .request-copy h2 {
-  max-width: 16ch;
+  width: 100%;
   margin: 0;
-  font-size: clamp(2.25rem, 4vw, 3.4rem);
   font-weight: 470;
   letter-spacing: -0.06em;
   line-height: 1.08;
-}
-
-.care-section .section-intro h2 {
-  max-width: 13ch;
-  font-size: clamp(2.75rem, 4.6vw, 4rem);
-  letter-spacing: -0.055em;
 }
 
 .section-description {
@@ -1529,9 +1524,11 @@ a {
   0% {
     box-shadow: 0 0 0 0 rgba(8, 127, 128, 0.5);
   }
+
   70% {
     box-shadow: 0 0 0 6px rgba(8, 127, 128, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(8, 127, 128, 0);
   }
@@ -1587,7 +1584,7 @@ a {
 /* Footer Main Grid */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1.1fr 1.1fr 1.2fr;
+  grid-template-columns: 1.6fr 1fr 1fr 1.6fr;
   gap: 3.5rem;
   max-width: 1320px;
   margin: 0 auto 3.5rem;
@@ -1659,6 +1656,8 @@ a {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--clinic-teal-deep);
+
 }
 
 .footer-col-title::after {
@@ -1855,7 +1854,6 @@ a {
 
 .copyright-sub {
   margin: 0;
-  color: #728b8e;
   font-size: 0.7rem;
 }
 
@@ -2165,7 +2163,7 @@ a {
   flex: 1;
 }
 
-.team-card .team-body > div:last-child {
+.team-card .team-body>div:last-child {
   margin-top: auto;
 }
 
@@ -2306,6 +2304,7 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
+  margin: 1.5rem auto 0 auto;
 }
 
 .guarantee-card {
@@ -2485,6 +2484,40 @@ a {
   overflow-x: auto;
 }
 
+@media (max-width: 767px) {
+  .price-table-wrap {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .price-table-wrap::before,
+  .price-table-wrap::after {
+    position: absolute;
+    inset-block: 0;
+    width: 1.75rem;
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 180ms ease;
+  }
+
+  .price-table-wrap::before {
+    inset-inline-start: 0;
+    background: linear-gradient(90deg, rgba(93, 125, 108, 0.3), transparent);
+  }
+
+  .price-table-wrap::after {
+    inset-inline-end: 0;
+    background: linear-gradient(270deg, rgba(93, 125, 108, 0.3), transparent);
+  }
+
+  .price-table-wrap[data-scroll-edge="start"]::before,
+  .price-table-wrap[data-scroll-edge="end"]::after {
+    opacity: 1;
+  }
+}
+
 .price-table {
   width: 100%;
   border-collapse: collapse;
@@ -2525,7 +2558,6 @@ a {
 .procedure-meta {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
   margin-bottom: 0.45rem;
 }
 
@@ -2538,9 +2570,13 @@ a {
   background: var(--clinic-teal-tint);
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
+  text-align: center;
+  width: 8rem;
 }
 
 .popular-tag {
+  width: 7rem;
+  text-align: center;
   font-size: 0.66rem;
   font-weight: 700;
   color: #8c5d08;
@@ -2548,6 +2584,7 @@ a {
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   text-transform: uppercase;
+  margin-left: 0.5rem;
 }
 
 .price-item-title {
@@ -2945,9 +2982,9 @@ a {
   border-radius: var(--clinic-radius-md);
   text-decoration: none;
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-              border-color 0.25s ease,
-              box-shadow 0.25s ease,
-              background 0.25s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
   color: inherit;
 }
 
@@ -2955,7 +2992,7 @@ a.contact-card-item:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--clinic-teal) 45%, var(--clinic-hairline));
   box-shadow: 0 8px 24px -6px rgba(8, 127, 128, 0.12),
-              0 2px 6px -2px rgba(8, 127, 128, 0.05);
+    0 2px 6px -2px rgba(8, 127, 128, 0.05);
   background: #ffffff;
 }
 
@@ -3154,14 +3191,14 @@ a.contact-card-item:hover .contact-arrow-icon {
   padding: 2.25rem;
   background: var(--clinic-surface);
   box-shadow: 0 10px 30px -10px rgba(24, 50, 53, 0.05),
-              0 2px 10px -2px rgba(24, 50, 53, 0.03);
+    0 2px 10px -2px rgba(24, 50, 53, 0.03);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .contact-form:focus-within {
   border-color: color-mix(in srgb, var(--clinic-teal) 40%, var(--clinic-hairline));
   box-shadow: 0 16px 36px -12px rgba(8, 127, 128, 0.12),
-              0 2px 10px -2px rgba(8, 127, 128, 0.04);
+    0 2px 10px -2px rgba(8, 127, 128, 0.04);
 }
 
 .contact-form-header {
@@ -3188,7 +3225,7 @@ a.contact-card-item:hover .contact-arrow-icon {
   margin-bottom: 1.2rem;
 }
 
-.field > span {
+.field>span {
   color: var(--clinic-ink);
   font-size: 0.74rem;
   font-weight: 600;
@@ -3262,8 +3299,8 @@ a.contact-card-item:hover .contact-arrow-icon {
   border: none;
   box-shadow: 0 4px 14px rgba(8, 127, 128, 0.28);
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
-              background 0.2s ease,
-              box-shadow 0.2s ease;
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .submit-button:hover {
@@ -3537,6 +3574,7 @@ a.contact-card-item:hover .contact-arrow-icon {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
+  margin: 1.5rem auto 0 auto;
 }
 
 .standard-card {
@@ -3771,7 +3809,7 @@ a.contact-card-item:hover .contact-arrow-icon {
 /* === Testimonials Showcase & Trust Strip === */
 .testimonials-trust-strip {
   width: min(calc(100% - 3rem), 1320px);
-  margin: -1.5rem auto 3.5rem;
+  margin: 1.5rem auto 0 auto;
   padding: 1.5rem 2.5rem;
   background: var(--clinic-surface);
   border: 1px solid color-mix(in srgb, var(--clinic-teal) 22%, var(--clinic-hairline));
@@ -4215,8 +4253,13 @@ a.contact-card-item:hover .contact-arrow-icon {
 }
 
 @keyframes modal-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-card {
@@ -5145,6 +5188,10 @@ body:has(.public-main),
   .footer-brand-col {
     grid-column: 1 / -1;
   }
+
+  .footer-social {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 640px) {
@@ -5559,7 +5606,7 @@ body:has(.public-main),
   padding-inline-start: clamp(0.8rem, 1.8vw, 1.4rem);
 }
 
-.home-page .visit-item > span {
+.home-page .visit-item>span {
   font-size: 0.65rem;
 }
 
@@ -5639,7 +5686,7 @@ body:has(.public-main),
   text-wrap: balance;
 }
 
-.home-page .approach-heading > p:last-child {
+.home-page .approach-heading>p:last-child {
   color: #d1e8e5;
   font-size: 0.95rem;
 }
@@ -5678,7 +5725,7 @@ body:has(.public-main),
   text-wrap: balance;
 }
 
-.home-page .request-copy > p:not(.section-label) {
+.home-page .request-copy>p:not(.section-label) {
   font-size: 0.94rem;
 }
 
@@ -5948,7 +5995,7 @@ body:has(.public-main),
   text-wrap: balance;
 }
 
-.cases-care-promise > div:last-child > p:first-child {
+.cases-care-promise>div:last-child>p:first-child {
   margin: 0 0 1rem;
   color: #fff;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
@@ -5969,227 +6016,231 @@ body:has(.public-main),
   }
 }
 
-  .clinic-history-section {
-    padding-block: clamp(4rem, 8vw, 7rem);
-    background: var(--clinic-teal-tint);
+.clinic-history-section {
+  padding-block: clamp(4rem, 8vw, 7rem);
+  background: var(--clinic-teal-tint);
+}
+
+.clinic-history-inner {
+  width: min(100% - 3rem, 1120px);
+  margin-inline: auto;
+}
+
+.clinic-history-section .section-intro {
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.clinic-history-section .section-intro h2 {
+  max-width: 16ch;
+  text-wrap: balance;
+}
+
+.clinic-history {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clinic-history::before,
+.clinic-history::after {
+  position: absolute;
+  inset-block: 0.5rem;
+  inset-inline-start: calc(50% - 1px);
+  width: 2px;
+  border-radius: 999px;
+  content: "";
+}
+
+.clinic-history::before {
+  background: #c8dedd;
+}
+
+.clinic-history::after {
+  background: var(--clinic-teal);
+  transform: scaleY(1);
+  transform-origin: top;
+}
+
+.clinic-history-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem minmax(0, 1fr);
+  align-items: start;
+  min-width: 0;
+}
+
+.clinic-history-marker {
+  z-index: 1;
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  grid-column: 2;
+  grid-row: 1;
+  place-items: center;
+  justify-self: center;
+  border: 4px solid var(--clinic-teal-tint);
+  border-radius: 50%;
+  background: var(--clinic-teal);
+  color: #fff;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.clinic-history-card {
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1;
+  margin-inline-end: 2rem;
+  border: 1px solid var(--clinic-hairline);
+  border-inline-start: 3px solid var(--clinic-teal);
+  border-radius: var(--clinic-radius-md);
+  padding: 1.5rem 1.65rem;
+  background: var(--clinic-surface);
+}
+
+.clinic-history-entry:nth-child(even) .clinic-history-card {
+  grid-column: 3;
+  margin-inline: 2rem 0;
+}
+
+.clinic-history-chapter {
+  margin: 0 0 0.5rem;
+  color: var(--clinic-teal-deep);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.clinic-history-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-weight: 570;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.clinic-history-card>p:last-child {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--clinic-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.clinic-history-note {
+  margin: 2rem 0 0;
+  color: var(--clinic-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+@keyframes history-line-draw {
+  from {
+    transform: scaleY(0);
   }
 
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes history-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes history-marker-reveal {
+  from {
+    opacity: 0.4;
+    transform: scale(0.65);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .clinic-history::after {
+    animation: history-line-draw 1s linear both;
+    animation-timeline: view(block);
+    animation-range: entry 0% exit 100%;
+  }
+
+  .clinic-history-entry {
+    animation: history-card-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-timeline: view(block);
+    animation-range: entry 0% cover 35%;
+  }
+
+  .clinic-history-marker {
+    animation: history-marker-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-timeline: view(block);
+    animation-range: entry 10% cover 38%;
+  }
+}
+
+@media (max-width: 767px) {
   .clinic-history-inner {
-    width: min(100% - 3rem, 1120px);
-    margin-inline: auto;
-  }
-
-  .clinic-history-section .section-intro {
-    margin-bottom: clamp(2rem, 5vw, 4rem);
-  }
-
-  .clinic-history-section .section-intro h2 {
-    max-width: 16ch;
-    text-wrap: balance;
+    width: calc(100% - 2rem);
   }
 
   .clinic-history {
-    position: relative;
-    display: grid;
-    gap: 1.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    gap: 1.1rem;
   }
 
   .clinic-history::before,
   .clinic-history::after {
-    position: absolute;
-    inset-block: 0.5rem;
-    inset-inline-start: calc(50% - 1px);
-    width: 2px;
-    border-radius: 999px;
-    content: "";
-  }
-
-  .clinic-history::before {
-    background: #c8dedd;
-  }
-
-  .clinic-history::after {
-    background: var(--clinic-teal);
-    transform: scaleY(1);
-    transform-origin: top;
+    inset-inline-start: 1.55rem;
   }
 
   .clinic-history-entry {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 4rem minmax(0, 1fr);
-    align-items: start;
-    min-width: 0;
+    grid-template-columns: 3.1rem minmax(0, 1fr);
+    gap: 0.75rem;
   }
 
   .clinic-history-marker {
-    z-index: 1;
-    display: grid;
-    width: 3.25rem;
-    height: 3.25rem;
-    grid-column: 2;
-    grid-row: 1;
-    place-items: center;
-    justify-self: center;
-    border: 4px solid var(--clinic-teal-tint);
-    border-radius: 50%;
-    background: var(--clinic-teal);
-    color: #fff;
-    font-family: var(--font-geist-mono), monospace;
-    font-size: 0.72rem;
-    font-variant-numeric: tabular-nums;
-    font-weight: 650;
-  }
-
-  .clinic-history-card {
-    min-width: 0;
+    width: 2.8rem;
+    height: 2.8rem;
     grid-column: 1;
-    grid-row: 1;
-    margin-inline-end: 2rem;
-    border: 1px solid var(--clinic-hairline);
-    border-inline-start: 3px solid var(--clinic-teal);
-    border-radius: var(--clinic-radius-md);
-    padding: 1.5rem 1.65rem;
-    background: var(--clinic-surface);
   }
 
+  .clinic-history-card,
   .clinic-history-entry:nth-child(even) .clinic-history-card {
-    grid-column: 3;
-    margin-inline: 2rem 0;
-  }
-
-  .clinic-history-chapter {
-    margin: 0 0 0.5rem;
-    color: var(--clinic-teal-deep);
-    font-family: var(--font-geist-mono), monospace;
-    font-size: 0.7rem;
-    font-variant-numeric: tabular-nums;
-    font-weight: 650;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .clinic-history-card h3 {
-    margin: 0 0 0.55rem;
-    font-size: clamp(1.15rem, 2vw, 1.4rem);
-    font-weight: 570;
-    letter-spacing: -0.035em;
-    line-height: 1.2;
-    text-wrap: balance;
-  }
-
-  .clinic-history-card > p:last-child {
-    max-width: 48ch;
+    grid-column: 2;
     margin: 0;
-    color: var(--clinic-muted);
-    font-size: 0.88rem;
-    line-height: 1.65;
+    padding: 1.2rem;
   }
+}
 
-  .clinic-history-note {
-    margin: 2rem 0 0;
-    color: var(--clinic-muted);
-    font-size: 0.78rem;
-    line-height: 1.6;
+@media (prefers-reduced-motion: reduce) {
+
+  .clinic-history::after,
+  .clinic-history-entry,
+  .clinic-history-marker,
+  .care-steps li {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
-
-  @keyframes history-line-draw {
-    from {
-      transform: scaleY(0);
-    }
-    to {
-      transform: scaleY(1);
-    }
-  }
-
-  @keyframes history-card-reveal {
-    from {
-      opacity: 0;
-      transform: translateY(2rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes history-marker-reveal {
-    from {
-      opacity: 0.4;
-      transform: scale(0.65);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @supports (animation-timeline: view()) {
-    .clinic-history::after {
-      animation: history-line-draw 1s linear both;
-      animation-timeline: view(block);
-      animation-range: entry 0% exit 100%;
-    }
-
-    .clinic-history-entry {
-      animation: history-card-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-timeline: view(block);
-      animation-range: entry 0% cover 35%;
-    }
-
-    .clinic-history-marker {
-      animation: history-marker-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-timeline: view(block);
-      animation-range: entry 10% cover 38%;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .clinic-history-inner {
-      width: calc(100% - 2rem);
-    }
-
-    .clinic-history {
-      gap: 1.1rem;
-    }
-
-    .clinic-history::before,
-    .clinic-history::after {
-      inset-inline-start: 1.55rem;
-    }
-
-    .clinic-history-entry {
-      grid-template-columns: 3.1rem minmax(0, 1fr);
-      gap: 0.75rem;
-    }
-
-    .clinic-history-marker {
-      width: 2.8rem;
-      height: 2.8rem;
-      grid-column: 1;
-    }
-
-    .clinic-history-card,
-    .clinic-history-entry:nth-child(even) .clinic-history-card {
-      grid-column: 2;
-      margin: 0;
-      padding: 1.2rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .clinic-history::after,
-    .clinic-history-entry,
-    .clinic-history-marker,
-    .care-steps li {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-  }
+}
 
 .clinic-story-prologue {
   max-width: 76ch;
@@ -6242,14 +6293,14 @@ body:has(.public-main),
   text-wrap: balance;
 }
 
-.clinic-story-distinction > p {
+.clinic-story-distinction>p {
   margin: 0;
   color: #fff;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
   line-height: 1.6;
 }
 
-.clinic-story-distinction + .clinic-history-note {
+.clinic-story-distinction+.clinic-history-note {
   margin-top: 1rem;
 }
 
@@ -6425,9 +6476,11 @@ body:has(.public-main),
   .site-header {
     padding-inline: max(1rem, calc((100% - 1320px) / 2));
   }
+
   .header-user-name {
     display: none;
   }
+
   .header-user-profile {
     padding: 0.25rem;
     border-radius: 50%;
@@ -6478,7 +6531,7 @@ body:has(.public-main),
   gap: clamp(0.35rem, 0.8vw, 0.75rem);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1260px) {
   .site-header {
     grid-template-columns: minmax(0, 1fr) auto;
   }
@@ -6540,7 +6593,7 @@ body:has(.public-main),
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 384px) {
   .site-header {
     column-gap: 0.5rem;
     padding-inline: 0.75rem;

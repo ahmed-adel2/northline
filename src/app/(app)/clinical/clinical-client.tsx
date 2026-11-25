@@ -85,6 +85,7 @@ export function ClinicalClient({
   const [activeTooth, setActiveTooth] = useState<number>(16);
   const [findings, setFindings] = useState<ToothFinding[]>(initialFindings);
   const [saving, setSaving] = useState(false);
+  const [printDate, setPrintDate] = useState("");
 
   const selectedPatientData = patients.find(
     (p) => p.id === selectedPatientId || `P-${String(p.patientNo).padStart(3, "0")}` === selectedPatientId
@@ -166,7 +167,16 @@ export function ClinicalClient({
           <p className="page-header-sub">Interactive anatomical charting, diagnostics, and findings synced to Supabase</p>
         </div>
         <div className="header-actions">
-          <button type="button" className="button button-secondary" onClick={() => window.print()}>
+          <button
+            type="button"
+            className="button button-secondary"
+            onClick={() => {
+              setPrintDate(new Intl.DateTimeFormat(undefined, { dateStyle: "long", timeStyle: "short" }).format(new Date()));
+              document.body.classList.add("printing-clinical-chart");
+              window.addEventListener("afterprint", () => document.body.classList.remove("printing-clinical-chart"), { once: true });
+              window.setTimeout(() => window.print(), 50);
+            }}
+          >
             <span>Print chart</span>
           </button>
           <Link href="/treatment-plans" className="button button-primary">
@@ -213,8 +223,13 @@ export function ClinicalClient({
 
         {/* Clinical Main Content */}
         <section className="clinical-main" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          {/* Patient Banner */}
-          <div className="clinical-patient-banner">
+          <div className="clinical-print-area">
+            <div className="clinical-print-meta">
+              <strong>Tooth Chart · {selectedPatientData?.fullName || "Selected Patient"}</strong>
+              <time>{printDate}</time>
+            </div>
+            {/* Patient Banner */}
+            <div className="clinical-patient-banner">
             <div className="banner-left">
               <span className="banner-patient-code">{patientCodeStr}</span>
               <div>
@@ -349,6 +364,8 @@ export function ClinicalClient({
                 </span>
               ))}
             </div>
+          </div>
+
           </div>
 
           {/* Active Tooth Detail & Diagnosis Action Panel */}
