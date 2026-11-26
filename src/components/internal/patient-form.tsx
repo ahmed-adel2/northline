@@ -6,7 +6,7 @@ import type { FormState } from "@/lib/form";
 export type PatientDefaults = Partial<{
   fullName: string; dob: string | null; gender: string | null; phone: string; email: string | null;
   nationalId: string | null; address: string | null; bloodType: string | null; allergies: string[];
-  insuranceProvider: string | null; insuranceMemberId: string | null; notes: string | null;
+  insuranceProvider: string | null; insuranceMemberId: string | null; notes: string | null; loyaltyPoints: number;
 }>;
 
 const BLOOD = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -66,6 +66,20 @@ export function PatientForm({
         <label className="m-field m-span">Notes
           <textarea name="notes" rows={3} defaultValue={d.notes ?? ""} />
         </label>
+        {typeof d.loyaltyPoints === "number" && (
+          <label className="m-field m-span">Loyalty points balance
+            <input
+              name="loyaltyPoints"
+              type="number"
+              min="0"
+              max="2147483647"
+              step="1"
+              inputMode="numeric"
+              required
+              defaultValue={d.loyaltyPoints}
+            />
+          </label>
+        )}
       </div>
       {state.error && <p className="m-error" role="alert">{state.error}</p>}
       <div className="m-actions">
