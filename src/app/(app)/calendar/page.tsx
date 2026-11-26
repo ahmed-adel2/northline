@@ -255,7 +255,7 @@ export default async function Calendar({
                     <div className="m-row-sub">
                       <span className="procedure-tag">{a.procedure}</span>
                       <span className="meta-sep">·</span>
-                      <span className="doctor-tag">Dr. {doctor ?? "Unassigned"}</span>
+                      <span className="doctor-tag">{doctor ?? "Unassigned"}</span>
                       {a.room && (
                         <>
                           <span className="meta-sep">·</span>

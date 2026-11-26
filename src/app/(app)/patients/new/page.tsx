@@ -5,8 +5,19 @@ import { createPatient } from "../actions";
 
 export const metadata = { title: "New Patient Registration — Northline Dental Clinic" };
 
-export default async function NewPatientPage() {
+export default async function NewPatientPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ name?: string; email?: string; phone?: string }>;
+}) {
   await requirePerm("patients:write");
+  const sp = await searchParams;
+  const defaults = {
+    fullName: sp.name ?? "",
+    email: sp.email ?? "",
+    phone: sp.phone ?? "",
+  };
+
   return (
     <div className="m-stack" style={{ maxWidth: "56rem", margin: "0 auto", width: "100%" }}>
       <div className="page-header">
@@ -20,7 +31,7 @@ export default async function NewPatientPage() {
         </div>
       </div>
       <div className="card" style={{ padding: "1.75rem 2rem", borderRadius: "var(--radius-lg)" }}>
-        <PatientForm action={createPatient} submitLabel="Save patient record" />
+        <PatientForm action={createPatient} defaults={defaults} submitLabel="Save patient record" />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateClinicSettings, toggleClinicIntegration, updateOpeningHours, setPublicPricelistAvailability } from "./actions";
+import { updateClinicSettings, toggleClinicIntegration, updateOpeningHours, setPublicPricelistAvailability, setLoyaltyAvailability } from "./actions";
 
 interface IntegrationItem {
   name: string;
@@ -26,6 +26,7 @@ interface SettingsClientProps {
     email: string | null;
     taxId: string | null;
     publicPricelist: boolean | null;
+    loyaltyEnabled: boolean;
     openingHours: OpeningHour[];
     integrations: IntegrationItem[];
   };
@@ -43,6 +44,8 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
   const [openingHoursSaving, setOpeningHoursSaving] = useState(false);
   const [publicPricelist, setPublicPricelist] = useState(initialSettings.publicPricelist ?? true);
   const [publicPricelistSaving, setPublicPricelistSaving] = useState(false);
+  const [loyaltyEnabled, setLoyaltyEnabled] = useState(initialSettings.loyaltyEnabled);
+  const [loyaltySaving, setLoyaltySaving] = useState(false);
   const [settingsError, setSettingsError] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedNotification, setSavedNotification] = useState(false);
@@ -272,7 +275,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
             <div>
               <h2>Public website &amp; integrations</h2>
               <p style={{ margin: "0.2rem 0 0", fontSize: "0.82rem", color: "var(--clinic-muted)" }}>
-                Control public Pricelist visibility and connected clinic services.
+                Control public Pricelist visibility, patient loyalty access, and connected clinic services.
               </p>
             </div>
           </div>
@@ -324,6 +327,39 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
                       setSettingsError(error instanceof Error ? error.message : "Unable to update public Pricelist availability.");
                     } finally {
                       setPublicPricelistSaving(false);
+                    }
+                  }}
+                />
+              </div>
+              <div className="integration-row">
+                <span className="int-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <div className="int-info">
+                  <span className="int-name">Patient loyalty points</span>
+                  <span className="int-desc">Show eligible patients their points and Loyalty Points page.</span>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={loyaltyEnabled}
+                  aria-label="Patient loyalty points availability"
+                  className={loyaltyEnabled ? "toggle-switch toggle-on" : "toggle-switch"}
+                  disabled={loyaltySaving}
+                  onClick={async () => {
+                    const nextValue = !loyaltyEnabled;
+                    setLoyaltyEnabled(nextValue);
+                    setLoyaltySaving(true);
+                    setSettingsError("");
+                    try {
+                      await setLoyaltyAvailability(nextValue);
+                    } catch (error) {
+                      setLoyaltyEnabled(!nextValue);
+                      setSettingsError(error instanceof Error ? error.message : "Unable to update loyalty points availability.");
+                    } finally {
+                      setLoyaltySaving(false);
                     }
                   }}
                 />

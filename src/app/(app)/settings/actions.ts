@@ -201,3 +201,40 @@ export async function setPublicPricelistAvailability(enabled: boolean) {
   revalidatePath("/", "layout");
   return { ok: true, enabled };
 }
+
+export async function setLoyaltyAvailability(enabled: boolean) {
+  const session = await requirePerm("settings:write");
+  if (typeof enabled !== "boolean") throw new Error("Choose whether patient loyalty points are available.");
+
+  const db = getDb();
+  const [existing] = await db.select().from(clinicSettings).limit(1);
+  if (existing) {
+    await db
+      .update(clinicSettings)
+      .set({ loyaltyEnabled: enabled, updatedAt: new Date() })
+      .where(eq(clinicSettings.id, existing.id));
+    await logAudit(session, {
+      action: "settings:loyalty-points",
+      entity: "settings",
+      entityId: existing.id,
+      before: { loyaltyEnabled: existing.loyaltyEnabled },
+      after: { loyaltyEnabled: enabled },
+    });
+  } else {
+    const [created] = await db
+      .insert(clinicSettings)
+      .values({ loyaltyEnabled: enabled })
+      .returning();
+    await logAudit(session, {
+      action: "settings:loyalty-points",
+      entity: "settings",
+      entityId: created.id,
+      after: { loyaltyEnabled: enabled },
+    });
+  }
+
+  revalidatePath("/settings");
+  revalidatePath("/", "layout");
+  revalidatePath("/loyalty-points");
+  return { ok: true, enabled };
+}

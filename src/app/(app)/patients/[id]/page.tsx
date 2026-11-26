@@ -2,7 +2,7 @@ import Link from "next/link";
 import { and, asc, desc, eq, ne } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ConfirmButton } from "@/components/internal/confirm-button";
-import { appointments, getDb, patients, staffMembers, tasks } from "@/db";
+import { appointments, clinicSettings, getDb, patients, staffMembers, tasks } from "@/db";
 import { can, getSession } from "@/lib/auth";
 import { fmtDate, fmtTime, parsePatientCode, patientCode, waLink } from "@/lib/format";
 import { archivePatient } from "../actions";
@@ -17,6 +17,11 @@ export default async function PatientDetail({ params }: { params: Promise<{ id: 
   if (!p) notFound();
   const session = await getSession();
   const code = patientCode(p.patientNo);
+  const [settings] = await db
+    .select({ loyaltyEnabled: clinicSettings.loyaltyEnabled })
+    .from(clinicSettings)
+    .limit(1);
+  const showLoyaltyPoints = settings?.loyaltyEnabled ?? true;
 
   const [appts, openTasks] = await Promise.all([
     db.select({ a: appointments, doctor: staffMembers.fullName })
@@ -102,7 +107,9 @@ export default async function PatientDetail({ params }: { params: Promise<{ id: 
           <div><dt>Blood type</dt><dd><strong style={{ color: "var(--clinic-teal-deep)" }}>{p.bloodType ?? "—"}</strong></dd></div>
           <div><dt>National ID</dt><dd>{p.nationalId ?? "—"}</dd></div>
           <div><dt>Insurance</dt><dd>{p.insuranceProvider ? `${p.insuranceProvider}${p.insuranceMemberId ? ` · ${p.insuranceMemberId}` : ""}` : "—"}</dd></div>
-          <div><dt>Loyalty points</dt><dd><span className="amount-tag">{p.loyaltyPoints} pts</span></dd></div>
+          {showLoyaltyPoints && (
+            <div><dt>Loyalty points</dt><dd><span className="amount-tag">{p.loyaltyPoints} pts</span></dd></div>
+          )}
           <div style={{ gridColumn: "1 / -1" }}><dt>Address</dt><dd>{p.address ?? "—"}</dd></div>
           <div style={{ gridColumn: "1 / -1" }}><dt>Clinical Notes</dt><dd>{p.notes ?? "—"}</dd></div>
         </dl>

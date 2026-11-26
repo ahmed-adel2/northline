@@ -23,20 +23,13 @@ async function getDueTaskCount() {
 }
 
 export default async function StaffLayout({ children }: Readonly<{ children: ReactNode }>) {
-  let role: string | undefined;
-  try {
-    const s = await getSession();
-    role = s.role;
-  } catch {
-    // If auth redirects or fails in unauthenticated/static context
-  }
-
+  const session = await getSession();
   const dueTasks = await getDueTaskCount();
 
   return (
     <div className="internal-shell">
       <Sidebar taskDueCount={dueTasks} />
-      <TopBar role={role} dueCount={dueTasks} />
+      <TopBar role={session.role} dueCount={dueTasks} />
       <div className="internal-body">
         <main className="internal-content">
           <div className="internal-container">

@@ -35,6 +35,7 @@ const supportedIntegrations = new Set(fallbackIntegrations.map((item) => item.na
     email: row?.email || "hello@northline.clinic",
     taxId: row?.taxId || "310122393500003",
     publicPricelist: row?.publicPricelist ?? true,
+    loyaltyEnabled: row?.loyaltyEnabled ?? true,
     openingHours: Array.isArray(row?.openingHours) && row.openingHours.length === 7
       ? (row.openingHours as OpeningHour[])
       : DEFAULT_OPENING_HOURS,

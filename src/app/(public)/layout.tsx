@@ -11,7 +11,7 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <>
       <div id="page-top" aria-hidden="true" />
-      <SiteHeader showPricelist={settings.publicPricelist} />
+      <SiteHeader showPricelist={settings.publicPricelist} showLoyaltyPoints={settings.loyaltyEnabled} />
       <main id="main-content" className="public-main">{children}</main>
       <SiteFooter
         showPricelist={settings.publicPricelist}
