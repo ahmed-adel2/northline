@@ -110,8 +110,8 @@ export function ContactClient({
         Demo clinic · Clinic details, prices, and patient stories are fictional
       </div>
 
-      <section className="page-hero animate-fade-in-up delay-100" aria-labelledby="page-title">
-        <div className="page-hero-copy animate-fade-in-up delay-200">
+      <section className="page-hero" aria-labelledby="page-title">
+        <div className="page-hero-copy">
           <p className="hero-location">
             <span aria-hidden="true" /> Direct clinic desk
           </p>
@@ -120,7 +120,7 @@ export function ContactClient({
             Whether you are booking a routine hygiene check, consulting on treatment plans, or have questions about care — we are here to help.
           </p>
         </div>
-        <PageHeroVisual src="/images/hero-contact.jpg" className="animate-fade-in-up delay-300" />
+        <PageHeroVisual src="/images/hero-contact.jpg" />
       </section>
 
       <section className="contact-section section-wrap animate-fade-in-up delay-300" aria-labelledby="contact-title">

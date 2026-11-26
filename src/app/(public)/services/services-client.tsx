@@ -164,8 +164,8 @@ export default function Services({ showPricelist }: { showPricelist: boolean }) 
         Demo clinic · Clinic details, prices, and patient stories are fictional
       </div>
 
-      <section className="page-hero animate-fade-in-up delay-100" aria-labelledby="page-title">
-        <div className="page-hero-copy animate-fade-in-up delay-200">
+      <section className="page-hero" aria-labelledby="page-title">
+        <div className="page-hero-copy">
           <p className="hero-location">
             <span aria-hidden="true" /> Clinical Care Spectrum
           </p>
@@ -174,7 +174,7 @@ export default function Services({ showPricelist }: { showPricelist: boolean }) 
             Explore our clinical disciplines. Every treatment is delivered with modern instrumentation, conservative techniques, and full transparency.
           </p>
         </div>
-        <PageHeroVisual src="/images/hero-services.jpg" className="animate-fade-in-up delay-300" />
+        <PageHeroVisual src="/images/hero-services.jpg" />
       </section>
 
       {/* Services Care Standard Strip */}

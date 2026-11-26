@@ -60,15 +60,15 @@ export default function About() {
         <span className="demo-dot" aria-hidden="true" />
         Demo clinic · Clinic details, prices, and patient stories are fictional
       </div>
-      <section className="page-hero animate-fade-in-up delay-100" aria-labelledby="page-title">
-        <div className="page-hero-copy animate-fade-in-up delay-200">
+      <section className="page-hero" aria-labelledby="page-title">
+        <div className="page-hero-copy">
           <p className="hero-location"><span aria-hidden="true" /> About Northline Dental Clinic</p>
           <h1 id="page-title">A clinic built around <em>conversation.</em></h1>
           <p className="hero-description">
             Northline is fictional. Explore its approach, illustrative history, and example patient journey.
           </p>
         </div>
-        <PageHeroVisual src="/images/hero-about.jpg" className="animate-fade-in-up delay-300" />
+        <PageHeroVisual src="/images/hero-about.jpg" />
       </section>
 
       <section className="values-section section-wrap animate-fade-in-up delay-300" aria-labelledby="values-title">

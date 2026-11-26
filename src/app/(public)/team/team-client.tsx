@@ -46,8 +46,8 @@ export function TeamClient({ doctors }: { doctors: PublicDoctor[] }) {
         Demo clinic · Clinic details, prices, and patient stories are fictional
       </div>
 
-      <section className="page-hero animate-fade-in-up delay-100" aria-labelledby="page-title">
-        <div className="page-hero-copy animate-fade-in-up delay-200">
+      <section className="page-hero" aria-labelledby="page-title">
+        <div className="page-hero-copy">
           <p className="hero-location">
             <span aria-hidden="true" /> Clinical Excellence
           </p>
@@ -56,7 +56,7 @@ export function TeamClient({ doctors }: { doctors: PublicDoctor[] }) {
             A cohesive multidisciplinary dental team dedicated to evidence-based practice, patient comfort, and total clarity at every chairside step.
           </p>
         </div>
-        <PageHeroVisual src="/images/hero-team.jpg" className="animate-fade-in-up delay-300" />
+        <PageHeroVisual src="/images/hero-team.jpg" />
       </section>
 
       {/* Clinical Values & Credential Strip */}
