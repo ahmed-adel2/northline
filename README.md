@@ -44,23 +44,6 @@ The repository currently contains a **synthetic Northline demo clinic**. Patient
 - Drizzle Kit
 - `tsx` for scripts
 
-## Repository Map
-
-```text
-src/app/(public)/       Public route pages and layouts
-src/app/(app)/          Staff routes, server actions, and internal UI
-src/app/api/            API route handlers
-src/app/checkin/        Clerk patient check-in
-src/components/public/  Public reusable components
-src/components/internal/Internal reusable components
-src/db/                 Drizzle connection and schema
-src/lib/                Auth, audit, analytics, formatting, demo, QR, settings
-scripts/                Database seed and demo wipe
-drizzle/                Generated migrations and metadata
-public/images/          Public and case images
-public/videos/          Clinic video assets
-```
-
 ## Prerequisites
 
 - Node.js compatible with Next.js 16
@@ -73,27 +56,6 @@ public/videos/          Clinic video assets
 ```powershell
 pnpm install
 ```
-
-Create `.env.local` with the variables below. Never commit this file or real secrets.
-
-```dotenv
-DATABASE_URL="postgresql://..."
-DIRECT_URL="postgresql://..."
-
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="..."
-CLERK_SECRET_KEY="..."
-
-# Optional but recommended for staff organization isolation
-CLERK_NORTHLINE_ORG_ID="org_..."
-
-# Optional clinic display defaults
-NEXT_PUBLIC_CLINIC_CURRENCY="EGP"
-NEXT_PUBLIC_CLINIC_TZ="Africa/Cairo"
-```
-
-Clerk must be configured with sign-in/sign-up pages and an organization membership model for staff. The application resolves the staff role from `staff_members.clerk_user_id` or verified email binding.
-
-For Supabase transaction poolers, use a pooler URL with Drizzle's `prepare: false` behavior. Database migration scripts use `DATABASE_URL`; seed/wipe scripts prefer `DIRECT_URL`.
 
 ## Database Setup
 
@@ -121,8 +83,6 @@ Remove all demo-flagged rows and demo-only staff:
 ```powershell
 pnpm db:wipe-demo
 ```
-
-The schema enables RLS on every table. Application database access is server-side through `DATABASE_URL`; Supabase REST clients must not be used as a substitute authorization boundary.
 
 ## Clerk Staff Access
 
