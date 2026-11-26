@@ -1,0 +1,1 @@
+ALTER TABLE "clinic_settings" ADD COLUMN "loyalty_enabled" boolean DEFAULT true NOT NULL;
