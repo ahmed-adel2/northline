@@ -22,7 +22,7 @@ function BrandSymbol() {
   );
 }
 
-export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
+export function SiteHeader({ showPricelist, showLoyaltyPoints }: { showPricelist: boolean; showLoyaltyPoints: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -38,6 +38,7 @@ export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
       (mem) => mem.role === "org:admin" || mem.role === "admin"
     )
   );
+  const showLoyaltyLink = showLoyaltyPoints && orgListLoaded && !isAdmin;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -53,6 +54,7 @@ export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
     { href: "/cases", label: "Cases" },
     { href: "/testimonials", label: "Testimonials" },
     { href: "/contact", label: "Contact" },
+
   ];
   if (showPricelist) navLinks.splice(4, 0, { href: "/pricelist", label: "Pricelist" });
 
@@ -66,7 +68,7 @@ export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
         </span>
       </Link>
 
-      <nav id="main-nav" className={`main-nav ${mobileMenuOpen ? "open" : ""}`} aria-label="Main navigation">
+      <nav id="main-nav" className={`main-nav  ${mobileMenuOpen ? "open" : ""}`} aria-label="Main navigation">
         <ul className="nav-list">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
@@ -84,6 +86,22 @@ export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
             );
           })}
         </ul>
+        {showLoyaltyLink && (
+          <Show when="signed-in">
+          <ul className="loyalty-mobile-nav">
+            <li>
+              <Link
+                href="/loyalty-points"
+                className="button-secondary"
+                aria-current={pathname === "/loyalty-points" ? "page" : undefined}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Loyalty Points
+              </Link>
+            </li>
+          </ul>
+          </Show>
+        )}
       </nav>
 
       <div className="header-actions">
@@ -103,8 +121,18 @@ export function SiteHeader({ showPricelist }: { showPricelist: boolean }) {
               className="button button-header button-staff-badge"
               title="Open Staff Dashboard"
             >
-              <span>Staff Dashboard</span>
+              <span>Dashboard</span>
               <ArrowUpRight />
+            </Link>
+          )}
+          {showLoyaltyLink && (
+            <Link
+              href="/loyalty-points"
+              className="button button-header button-staff-badge"
+              id="loyalty-points-button"
+              title="Open Loyalty Points"
+            >
+              <span>Loyalty Points</span>
             </Link>
           )}
 

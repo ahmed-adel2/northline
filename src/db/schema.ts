@@ -237,6 +237,7 @@ export const clinicSettings = pgTable("clinic_settings", {
     email: text("email"),
     taxId: text("tax_id"),
     publicPricelist: boolean("public_pricelist").default(true),
+    loyaltyEnabled: boolean("loyalty_enabled").notNull().default(true),
     openingHours: jsonb("opening_hours"),
     integrations: jsonb("integrations"),
     ...stamps,
@@ -259,6 +260,18 @@ export const doctorMonthlySalaries = pgTable(
     (t) => [uniqueIndex("doctor_monthly_salaries_doctor_month_idx").on(t.doctorId, t.month)]
 ).enableRLS();
 
+export const patientArrivals = pgTable("patient_arrivals", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    memberName: text("member_name").notNull(),
+    email: text("email"),
+    username: text("username"),
+    phone: text("phone"),
+    arrivedAt: timestamp("arrived_at", { withTimezone: true }).notNull().defaultNow(),
+    patientId: uuid("patient_id").references(() => patients.id),
+    ...stamps,
+}).enableRLS();
+
 export type Patient = typeof patients.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
@@ -270,4 +283,5 @@ export type LabOrder = typeof labOrders.$inferSelect;
 export type InsuranceClaim = typeof insuranceClaims.$inferSelect;
 export type ToothFinding = typeof toothFindings.$inferSelect;
 export type ClinicSettings = typeof clinicSettings.$inferSelect;
+export type PatientArrival = typeof patientArrivals.$inferSelect;
 export type DoctorMonthlySalary = typeof doctorMonthlySalaries.$inferSelect;

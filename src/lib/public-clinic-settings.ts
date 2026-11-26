@@ -28,6 +28,7 @@ export const getPublicClinicSettings = cache(async () => {
       email: clinicSettings.email,
       taxId: clinicSettings.taxId,
       publicPricelist: clinicSettings.publicPricelist,
+      loyaltyEnabled: clinicSettings.loyaltyEnabled,
       openingHours: clinicSettings.openingHours,
     })
     .from(clinicSettings)
@@ -46,6 +47,7 @@ export const getPublicClinicSettings = cache(async () => {
     email: row?.email || "hello@northline.clinic",
     taxId: row?.taxId || "",
     publicPricelist: row?.publicPricelist ?? true,
+    loyaltyEnabled: row?.loyaltyEnabled ?? true,
     openingHours,
   };
 });
