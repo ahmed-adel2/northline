@@ -159,7 +159,7 @@ export default async function Tasks({
           </p>
         </div>
       ) : (
-        <ul className="m-list" style={{ gridTemplateColumns: "1fr" }}>
+        <ul className="m-list" style={{ gridTemplateColumns: "1fr", marginTop: "0.5rem" }}>
           {rows.map(({ t, patient }) => {
             const late =
               t.status !== "done" && t.dueDate && t.dueDate < today;

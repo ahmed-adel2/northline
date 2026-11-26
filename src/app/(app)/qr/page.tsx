@@ -1,4 +1,4 @@
-import { desc, isNull } from "drizzle-orm";
+import { desc, isNull, sql } from "drizzle-orm";
 import { getDb, patientArrivals, patients } from "@/db";
 import { getSession } from "@/lib/auth";
 import { patientCode } from "@/lib/format";
@@ -14,8 +14,8 @@ export default async function QRCodesPage() {
     db
       .select()
       .from(patientArrivals)
-      .orderBy(desc(patientArrivals.arrivedAt))
-      .limit(50),
+      .where(sql`${patientArrivals.arrivedAt} >= now() - interval '7 days'`)
+      .orderBy(desc(patientArrivals.arrivedAt)),
     db
       .select({
         id: patients.id,

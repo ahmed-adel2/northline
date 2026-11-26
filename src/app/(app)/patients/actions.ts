@@ -27,6 +27,13 @@ function read(f: FormData) {
   };
 }
 
+function readLoyaltyPoints(f: FormData): number | null {
+  const value = str(f, "loyaltyPoints");
+  if (!/^\d+$/.test(value)) return null;
+  const points = Number(value);
+  return Number.isSafeInteger(points) && points <= 2147483647 ? points : null;
+}
+
 function validate(v: ReturnType<typeof read>): string | null {
   if (v.fullName.length < 2) return "Enter the patient's full name.";
   if (v.phone.replace(/\D/g, "").length < 7) return "Enter a phone number with at least 7 digits.";
@@ -60,14 +67,20 @@ export async function updatePatient(code: string, _: FormState, f: FormData): Pr
   const v = read(f);
   const err = validate(v);
   if (err) return { ok: false, error: err };
+  const loyaltyPoints = readLoyaltyPoints(f);
+  if (loyaltyPoints === null) {
+    return { ok: false, error: "Enter a whole number of loyalty points from 0 to 2,147,483,647." };
+  }
 
   const db = getDb();
   const [before] = await db.select().from(patients).where(eq(patients.patientNo, no)).limit(1);
   if (!before) return { ok: false, error: "Patient not found." };
-  const [after] = await db.update(patients).set({ ...v, updatedAt: new Date() })
+  const [after] = await db.update(patients).set({ ...v, loyaltyPoints, updatedAt: new Date() })
     .where(eq(patients.patientNo, no)).returning();
   await logAudit(s, { action: "update", entity: "patient", entityId: after.id, before, after });
   revalidatePath("/patients");
+  revalidatePath(`/patients/${code}`);
+  revalidatePath("/loyalty-points");
   redirect(`/patients/${code}`);
 }
 

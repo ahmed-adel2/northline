@@ -17,6 +17,37 @@ export type ArrivalItem = {
   matchedPatientCode: string | null;
 };
 
+const ARRIVAL_TIME_ZONE = "Africa/Cairo";
+
+function arrivalDateKey(date: Date) {
+  const parts = new Intl.DateTimeFormat("en", {
+    timeZone: ARRIVAL_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function groupArrivalsByDate(arrivals: ArrivalItem[]) {
+  const groups = new Map<string, ArrivalItem[]>();
+  for (const arrival of arrivals) {
+    const key = arrivalDateKey(new Date(arrival.arrivedAtIso));
+    groups.set(key, [...(groups.get(key) ?? []), arrival]);
+  }
+
+  const dateLabel = new Intl.DateTimeFormat("en-US", {
+    timeZone: ARRIVAL_TIME_ZONE,
+    dateStyle: "full",
+  });
+  return Array.from(groups, ([dateKey, items]) => ({
+    dateKey,
+    dateLabel: dateLabel.format(new Date(items[0].arrivedAtIso)),
+    items,
+  }));
+}
+
 const emptySubscribe = () => () => {};
 
 function useOrigin() {
@@ -70,6 +101,7 @@ export function QrClient({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const checkinUrl = `${origin}/checkin`;
+  const arrivalGroups = useMemo(() => groupArrivalsByDate(arrivals), [arrivals]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(checkinUrl);
@@ -190,14 +222,24 @@ export function QrClient({
               Patients who scanned the QR code and signed in or signed up via Clerk.
             </span>
           </div>
-          <button
-            type="button"
-            className="button button-secondary"
-            style={{ fontSize: "0.78rem", minHeight: "34px", padding: "0.3rem 0.75rem" }}
-            onClick={() => router.refresh()}
-          >
-            Refresh
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <a
+              href="/api/qr/arrivals/export"
+              className="button button-secondary"
+              aria-label="Download complete arrivals history as a CSV file"
+              style={{ fontSize: "0.78rem", minHeight: "34px", padding: "0.3rem 0.75rem" }}
+            >
+              Arrivals history
+            </a>
+            <button
+              type="button"
+              className="button button-secondary"
+              style={{ fontSize: "0.78rem", minHeight: "34px", padding: "0.3rem 0.75rem" }}
+              onClick={() => router.refresh()}
+            >
+              Refresh
+            </button>
+          </div>
         </div>
 
         {errorMsg && (
@@ -211,102 +253,110 @@ export function QrClient({
             <span>No arrivals recorded yet. When a patient scans the QR code and signs in, they will appear here.</span>
           </div>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-              gap: "0.9rem",
-            }}
-          >
-            {arrivals.map((a) => {
-              const arrived = new Date(a.arrivedAtIso);
-              const dateStr = arrived.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              });
-              const timeStr = arrived.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-              });
-
-              return (
+          <div style={{ display: "grid", gap: "1.25rem", margin: "0.25rem 0.5rem 0.5rem" }}>
+            {arrivalGroups.map((group) => (
+              <section key={group.dateKey} aria-labelledby={`arrivals-${group.dateKey}`}>
+                <h3
+                  id={`arrivals-${group.dateKey}`}
+                  style={{ margin: "0 0 0.65rem", fontSize: "0.9rem", color: "var(--clinic-ink)" }}
+                >
+                  {group.dateLabel} <span style={{ color: "var(--clinic-muted)", fontWeight: 500 }}>({group.items.length})</span>
+                </h3>
                 <div
-                  key={a.id}
                   style={{
-                    border: "1px solid var(--clinic-hairline)",
-                    borderRadius: "var(--clinic-radius-sm)",
-                    background: "var(--clinic-ground)",
-                    padding: "1rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: "0.9rem",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", flexWrap: "wrap" }}>
-                      <strong style={{ fontSize: "0.95rem", color: "var(--clinic-ink)" }}>
-                        {a.memberName}
-                      </strong>
+                  {group.items.map((a) => {
+                    const arrived = new Date(a.arrivedAtIso);
+                    const timeStr = arrived.toLocaleTimeString("en-US", {
+                      timeZone: ARRIVAL_TIME_ZONE,
+                      hour: "numeric",
+                      minute: "2-digit",
+                    });
+
+                    return (
+                    <div
+                      key={a.id}
+                      style={{
+                        border: "1px solid var(--clinic-hairline)",
+                        borderRadius: "var(--clinic-radius-sm)",
+                        background: "var(--clinic-ground)",
+                        padding: "1rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", flexWrap: "wrap" }}>
+                          <strong style={{ fontSize: "0.95rem", color: "var(--clinic-ink)" }}>
+                            {a.memberName}
+                          </strong>
+                          {a.isNew && (
+                            <span
+                              style={{
+                                fontSize: "0.68rem",
+                                fontWeight: 700,
+                                letterSpacing: "0.04em",
+                                padding: "0.12rem 0.45rem",
+                                borderRadius: "999px",
+                                background: "#fef3c7",
+                                color: "#92400e",
+                                border: "1px solid #fcd34d",
+                              }}
+                            >
+                              NEW
+                            </span>
+                          )}
+                        </div>
+                        {a.matchedPatientCode && (
+                          <Link
+                            href={`/patients/${a.matchedPatientCode}`}
+                            className="button-link"
+                            style={{ fontSize: "0.75rem" }}
+                          >
+                            {a.matchedPatientCode}
+                          </Link>
+                        )}
+                      </div>
+    
+                      <div style={{ fontSize: "0.8rem", color: "var(--clinic-muted)", display: "grid", gap: "0.2rem" }}>
+                        <div>
+                          <strong style={{ color: "var(--clinic-ink)", fontWeight: 550 }}>Email:</strong>{" "}
+                          {a.email ?? "—"}
+                        </div>
+                        <div>
+                          <strong style={{ color: "var(--clinic-ink)", fontWeight: 550 }}>Username:</strong>{" "}
+                          {a.username ?? "—"}
+                        </div>
+                        <div>
+                          <strong style={{ color: "var(--clinic-ink)", fontWeight: 550 }}>Arrived:</strong>{" "}
+                          {timeStr}
+                        </div>
+                      </div>
+    
                       {a.isNew && (
-                        <span
-                          style={{
-                            fontSize: "0.68rem",
-                            fontWeight: 700,
-                            letterSpacing: "0.04em",
-                            padding: "0.12rem 0.45rem",
-                            borderRadius: "999px",
-                            background: "#fef3c7",
-                            color: "#92400e",
-                            border: "1px solid #fcd34d",
-                          }}
-                        >
-                          NEW
-                        </span>
+                        <div style={{ marginTop: "0.35rem" }}>
+                          <button
+                            type="button"
+                            className="button button-primary"
+                            disabled={addingId === a.id}
+                            onClick={() => handleAddMember(a)}
+                            style={{ fontSize: "0.76rem", padding: "0.35rem 0.75rem", minHeight: "32px" }}
+                          >
+                            {addingId === a.id ? "Adding…" : "Add the member"}
+                          </button>
+                        </div>
                       )}
                     </div>
-                    {a.matchedPatientCode && (
-                      <Link
-                        href={`/patients/${a.matchedPatientCode}`}
-                        className="button-link"
-                        style={{ fontSize: "0.75rem" }}
-                      >
-                        {a.matchedPatientCode}
-                      </Link>
-                    )}
-                  </div>
-
-                  <div style={{ fontSize: "0.8rem", color: "var(--clinic-muted)", display: "grid", gap: "0.2rem" }}>
-                    <div>
-                      <strong style={{ color: "var(--clinic-ink)", fontWeight: 550 }}>Email:</strong>{" "}
-                      {a.email ?? "—"}
-                    </div>
-                    <div>
-                      <strong style={{ color: "var(--clinic-ink)", fontWeight: 550 }}>Username:</strong>{" "}
-                      {a.username ?? "—"}
-                    </div>
-                    <div>
-                      <strong style={{ color: "var(--clinic-ink)", fontWeight: 550 }}>Arrived:</strong>{" "}
-                      {dateStr} · {timeStr}
-                    </div>
-                  </div>
-
-                  {a.isNew && (
-                    <div style={{ marginTop: "0.35rem" }}>
-                      <button
-                        type="button"
-                        className="button button-primary"
-                        disabled={addingId === a.id}
-                        onClick={() => handleAddMember(a)}
-                        style={{ fontSize: "0.76rem", padding: "0.35rem 0.75rem", minHeight: "32px" }}
-                      >
-                        {addingId === a.id ? "Adding…" : "Add the member"}
-                      </button>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </section>
+            ))}
           </div>
         )}
       </section>

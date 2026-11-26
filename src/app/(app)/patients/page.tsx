@@ -215,7 +215,7 @@ export default async function Patients({
           </div>
         </div>
       ) : (
-        <div className="card">
+        <div className="card mt-5">
           <div className="card-header">
             <h2>
               Patient Records ({rows.length}

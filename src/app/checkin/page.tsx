@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { and, desc, eq, gte, ilike, isNull, or, sql } from "drizzle-orm";
 import { getDb, patientArrivals, patients } from "@/db";
+import "@/app/home.css";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +69,7 @@ export default async function CheckinPage({
           <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem", marginTop: "0.5rem" }}>
             <Link
               href={`/sign-in?redirect_url=${encodeURIComponent(redirectPath)}`}
-              className="button button-primary"
+              className="button button-secondary"
               style={{ justifyContent: "center" }}
             >
               Sign in to Check In
@@ -78,11 +79,11 @@ export default async function CheckinPage({
               className="button button-secondary"
               style={{ justifyContent: "center" }}
             >
-              New Patient? Sign up
+              New Member? Sign up
             </Link>
           </div>
         </div>
-      </main>
+      </main >
     );
   }
 
@@ -109,12 +110,12 @@ export default async function CheckinPage({
   const matchedPatient =
     matchConditions.length > 0
       ? (
-          await db
-            .select({ id: patients.id })
-            .from(patients)
-            .where(and(isNull(patients.archivedAt), or(...matchConditions)))
-            .limit(1)
-        )[0]
+        await db
+          .select({ id: patients.id })
+          .from(patients)
+          .where(and(isNull(patients.archivedAt), or(...matchConditions)))
+          .limit(1)
+      )[0]
       : undefined;
 
   // Avoid duplicate check-in rows if the patient refreshes within 10 minutes
